@@ -1,0 +1,250 @@
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import Captcha from "./Captcha";
+
+function AdminLogin() {
+  const navigate = useNavigate();
+
+  const [step, setStep] = useState(1);
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [generatedCaptcha, setGeneratedCaptcha] = useState("");
+  const [captchaInput, setCaptchaInput] = useState("");
+
+  const [otp, setOtp] = useState("");
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // LOGIN API
+  const handleStep1Submit = async (e) => {
+    e.preventDefault();
+
+    setError("");
+
+    if (captchaInput.trim() !== generatedCaptcha.trim()) {
+      setError("Invalid Captcha");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const response = await axios.post(
+        "http://192.168.1.17:8000/api/v1/auth/email/login",
+        {
+          email,
+          password,
+        }
+      );
+
+      // console.log("Login Response:", response.data);
+
+      if (
+        response.status === 200 ||
+        response.data?.success
+      ) {
+        // Save token if backend sends one
+        if (response.data?.token) {
+          localStorage.setItem(
+            "token",
+            response.data.token
+          );
+        }
+
+        setStep(2);
+      }
+    } catch (err) {
+      console.error(err);
+
+      setError(
+        err.response?.data?.message ||
+          "Invalid Email or Password"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // OTP VERIFY
+  const handleStep2Submit = (e) => {
+    e.preventDefault();
+
+    // Replace with actual OTP API later
+    if (otp === "123456") {
+      navigate("/dashboard");
+    } else {
+      setError("Invalid OTP");
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
+        
+        {/* Header */}
+        <div className="bg-teal-900 p-6">
+          <h1 className="text-3xl font-bold text-white">
+            Admin Control Panel
+          </h1>
+
+          <p className="text-slate-200 mt-1 text-sm">
+            Secure Login Portal
+          </p>
+        </div>
+
+        {/* LOGIN SCREEN */}
+        {step === 1 && (
+          <form
+            onSubmit={handleStep1Submit}
+            className="p-8 space-y-5"
+          >
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-lg text-sm">
+                {error}
+              </div>
+            )}
+
+            {/* Email */}
+            <div>
+              <label className="block mb-2 text-sm font-semibold text-slate-700">
+                Email Address
+              </label>
+
+              <input
+                type="email"
+                required
+                autoComplete="email"
+                value={email}
+                onChange={(e) =>
+                  setEmail(e.target.value)
+                }
+                placeholder="admin@company.com"
+                className="w-full px-4 py-3 rounded-lg border border-slate-300 outline-none focus:ring-2 focus:ring-teal-700 focus:border-teal-700"
+              />
+            </div>
+
+            {/* Password */}
+            <div>
+              <label className="block mb-2 text-sm font-semibold text-slate-700">
+                Password
+              </label>
+
+              <input
+                type="password"
+                required
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) =>
+                  setPassword(e.target.value)
+                }
+                placeholder="********"
+                className="w-full px-4 py-3 rounded-lg border border-slate-300 outline-none focus:ring-2 focus:ring-teal-700 focus:border-teal-700"
+              />
+            </div>
+
+            {/* Captcha */}
+            <Captcha
+              onCaptchaChange={setGeneratedCaptcha}
+              captchaInput={captchaInput}
+              setCaptchaInput={setCaptchaInput}
+            />
+
+            {/* Login Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full py-3 rounded-lg font-semibold text-white shadow-lg transition
+                ${
+                  loading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-teal-900 hover:bg-teal-800 active:scale-95"
+                }`}
+            >
+              {loading
+                ? "Signing In..."
+                : "Admin Login"}
+            </button>
+          </form>
+        )}
+
+        {/* OTP SCREEN */}
+        {step === 2 && (
+          <form
+            onSubmit={handleStep2Submit}
+            className="p-8 space-y-6"
+          >
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-lg text-sm">
+                {error}
+              </div>
+            )}
+
+            <div className="text-center">
+              <div className="w-16 h-16 mx-auto rounded-full bg-orange-100 flex items-center justify-center mb-4">
+                <span className="text-3xl">🔒</span>
+              </div>
+
+              <h2 className="text-2xl font-bold text-slate-800">
+                Two Factor Authentication
+              </h2>
+
+              <p className="text-sm text-slate-500 mt-2">
+                Enter the 6 digit OTP sent to your
+                registered email.
+              </p>
+            </div>
+
+            {/* OTP */}
+            <div>
+              <label className="block text-center mb-2 text-sm font-semibold text-slate-700">
+                OTP Verification
+              </label>
+
+              <input
+                type="text"
+                maxLength={6}
+                required
+                value={otp}
+                onChange={(e) =>
+                  setOtp(
+                    e.target.value.replace(/\D/g, "")
+                  )
+                }
+                placeholder="000000"
+                className="w-full py-3 text-center text-3xl tracking-[10px] rounded-lg border border-slate-300 outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              />
+            </div>
+
+            {/* Verify Button */}
+            <button
+              type="submit"
+              className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-semibold shadow-lg transition active:scale-95"
+            >
+              Verify & Enter Dashboard
+            </button>
+
+            {/* Back */}
+            <button
+              type="button"
+              onClick={() => {
+                setError("");
+                setStep(1);
+              }}
+              className="w-full text-slate-600 hover:text-black"
+            >
+              ← Back to Login
+            </button>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default AdminLogin;

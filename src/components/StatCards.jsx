@@ -1,13 +1,15 @@
 import React from "react";
 import { Users, Scissors, ShoppingBag, DollarSign, TrendingUp, ChevronRight } from "lucide-react";
 
-export default function StatCards({ stats, counts, setActiveTab }) {
+ function StatCards({ stats, counts, setActiveTab }) {
   const cards = [
-    { id: "customer", title: "Active Customers", value: stats.activeCust, sub: `of ${counts.customers} total`, icon: Users, color: "bg-teal-50 text-teal-700 hover:bg-teal-700", trend: "+12% MoM" },
-    { id: "tailor", title: "Design Tailors / Vendors", value: counts.tailors, sub: "Verified Boutiques", icon: Scissors, color: "bg-orange-50 text-orange-600 hover:bg-orange-500", label: "5 Hub Locations", rotate: true },
-    { id: "order", title: "Active Bookings", value: counts.orders, sub: "Stitching & Collection Pipeline", icon: ShoppingBag, color: "bg-amber-50 text-amber-700 hover:bg-amber-600", trend: "Live Tracking" },
-    { id: "payment", title: "Gross Intake", value: stats.totalRevenue, sub: "Completed & Partials", icon: DollarSign, color: "bg-emerald-50 text-emerald-700 hover:bg-emerald-600", trend: "Secure System logs" },
+    { id: "customer", title: "Active Customers", value: stats.activeCust, sub: `of ${counts.customers} total`, icon: Users, color: "bg-teal-50 text-teal-700 hover:bg-teal-700" },
+    { id: "tailor", title: "Design Tailors / Vendors", value: counts.tailors, sub: "Verified Boutiques", icon: Scissors, color: "bg-orange-50 text-orange-600 hover:bg-orange-500"},
+    { id: "order", title: "Active Bookings", value: counts.orders, sub: "Stitching & Collection Pipeline", icon: ShoppingBag, color: "bg-amber-50 text-amber-700 hover:bg-amber-600"},
+    { id: "payment", title: "Gross Intake", value: stats.totalRevenue, sub: "Completed & Partials", icon: DollarSign, color: "bg-emerald-50 text-emerald-700 hover:bg-emerald-600"},
   ];
+
+  
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -47,3 +49,4 @@ export default function StatCards({ stats, counts, setActiveTab }) {
     </div>
   );
 }
+export default StatCards;
