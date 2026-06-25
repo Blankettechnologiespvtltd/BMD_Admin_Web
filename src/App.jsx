@@ -7,10 +7,12 @@ import AdminLogin from "./components/AdminLogin";
 import Dashboard from "./components/Dashboard";
 import TailorDetails from "./components/TailorDetails";
 import AddTailor from "./components/AddTailor";
-import FullDetails from "./components/FullDetails";
+import FullDetails from "./components/TailorFullDetails";
 import Captcha from "./components/Captcha";
 import TailorApplications from "./components/TailorApplications";
 import OrderDetails from "./components/OrderDetails"
+import AddOrder from "./components/AddOrder";
+import OrderFullDetails from "./components/OrderFullDetails";
 
 
 function App() {
@@ -29,8 +31,10 @@ function App() {
           <Route path="/fulldetails" element={<FullDetails />} />
           <Route path="/bridgedetail" element={<BridgeDetails />} />
           <Route path="/addbridge" element={<AddBridge />} />
+               <Route path="/addorder" element={<AddOrder />} />
           <Route path="/ordersdetails" element={<OrderDetails />} />
-          <Route path="/tailor-applications" element={<TailorApplications />} />
+             <Route path="/orderfulldetails" element={<OrderFullDetails />} />
+          {/* <Route path="/tailor-applications" element={<TailorApplications />} /> */}
         </Route>
       </Routes>
     </BrowserRouter>

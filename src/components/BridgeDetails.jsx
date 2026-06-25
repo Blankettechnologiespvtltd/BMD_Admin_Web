@@ -89,7 +89,7 @@ const BridgeDetails = () => {
       >
         {/* Header  */}
         <div className="bg-teal-700 text-white p-4 rounded-lg shadow-md mb-6 flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Customer Bridge</h1>
+          <h1 className="text-2xl font-bold"> Bridge Dashboard</h1>
           
           <div className="flex items-center gap-4">
             {/* Search */}
@@ -156,7 +156,7 @@ const BridgeDetails = () => {
             onClick={() => navigate("/addbridge")}
             className="bg-orange-500 hover:bg-orange-600 px-5 py-2 rounded-lg font-semibold transition duration-300"
           >
-            + Add Bridge
+            + Add 
           </button>
         </div>
 

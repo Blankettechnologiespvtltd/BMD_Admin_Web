@@ -36,7 +36,8 @@ function AdminLogin() {
       setLoading(true);
 
       const response = await axios.post(
-        "http://192.168.1.29:8000/api/v1/auth/email/login",
+        "https://web-production-efff7.up.railway.app/api/v1/auth/email/login",
+        // "http://192.168.1.29:8000/api/v1/auth/email/login",
         {
           email,
           password,
