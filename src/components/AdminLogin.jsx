@@ -19,6 +19,8 @@ function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+
+
   // LOGIN API
   const handleStep1Submit = async (e) => {
     e.preventDefault();
@@ -34,7 +36,7 @@ function AdminLogin() {
       setLoading(true);
 
       const response = await axios.post(
-        "http://192.168.1.17:8000/api/v1/auth/email/login",
+        "http://192.168.1.29:8000/api/v1/auth/email/login",
         {
           email,
           password,
@@ -42,18 +44,34 @@ function AdminLogin() {
       );
 
       // console.log("Login Response:", response.data);
+      console.log("FULL LOGIN RESPONSE =>", response.data);
 
       if (
         response.status === 200 ||
         response.data?.success
       ) {
         // Save token if backend sends one
-        if (response.data?.token) {
-          localStorage.setItem(
-            "token",
-            response.data.token
-          );
-        }
+        // if (response.data?.token) {
+        //   localStorage.setItem(
+        //     "token",
+        //     response.data.token
+        //   );
+        // }
+        if (response.data?.access_token) {
+  localStorage.setItem(
+    "token",
+    response.data.access_token
+  );
+
+  localStorage.setItem(
+    "refresh_token",
+    response.data.refresh_token
+  );
+}
+// localStorage.setItem(
+//   "token",
+//   response.data.access_token
+// );
 
         setStep(2);
       }
