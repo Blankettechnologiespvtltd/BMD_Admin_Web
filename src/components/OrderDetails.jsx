@@ -1,1261 +1,471 @@
-// import React, { useState, useEffect } from "react";
-// import { Filter } from "lucide-react";
-// import { useNavigate } from "react-router-dom";
-// import axios from "axios";
 
-// const OrderDetails = () => {
-//   const [showForm, setShowForm] = useState(false); 
-//   const [showFilter, setShowFilter] = useState(false);
-//   const [search, setSearch] = useState("");
-//   const [openFilter, setOpenFilter] = useState("");
-//   const [bridges, setBridges] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [filters, setFilters] = useState({
-//     status: [],
-//   });
-
-//   const navigate = useNavigate();
-
-  
-//   const fetchBridges = async () => {
-//     try {
-//       setLoading(true);
-//       const token = localStorage.getItem("token");
-      
-     
-//       const response = await axios.get(
-//         "http://192.168.1.29:8000/api/v1/order", 
-//         {
-//           headers: {
-//             Authorization: `Bearer ${token}`,
-//           },
-//         }
-//       );
-
-//       const data = response.data?.data || response.data?.bridges || response.data || [];
-//       setBridges(Array.isArray(data) ? data : []);
-//     } catch (error) {
-//       console.error("Order fetch error:", error);
-
-//       if (error.response?.status === 401) {
-//         alert("Session expired. Please login again.");
-//         localStorage.removeItem("token");
-//       }
-//       setBridges([]);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchBridges();
-//   }, []);
-
-//   const handleFilter = (type, value) => {
-//     setFilters((prev) => ({
-//       ...prev,
-//       [type]: prev[type].includes(value)
-//         ? prev[type].filter((item) => item !== value)
-//         : [...prev[type], value],
-//     }));
-//   };
-
-//   const resetFilters = () => {
-//     setFilters({
-//       status: [],
-//     });
-//   };
-
-
-//   const filteredBridges = bridges.filter((bridge) => {
-//     const searchMatch =
-//       bridge.bridge_id?.toLowerCase().includes(search.toLowerCase()) ||
-//       bridge.customer_name?.toLowerCase().includes(search.toLowerCase()) ||
-//       bridge.tailor_name?.toLowerCase().includes(search.toLowerCase());
-
-//     const statusMatch =
-//       filters.status.length === 0 ||
-//       filters.status.includes(bridge.status);
-
-//     return searchMatch && statusMatch;
-//   });
-
-//   return (
-//     <>
-//       <div
-//         className={`p-5 w-full min-h-screen bg-gray-100 transition-all duration-300 ${
-//           showForm ? "blur-sm pointer-events-none" : ""
-//         }`}
-//       >
-//         {/* Header  */}
-//         <div className="bg-teal-700 text-white p-4 rounded-lg shadow-md mb-6 flex justify-between items-center">
-//           <h1 className="text-2xl font-bold">Customer Bridge</h1>
-          
-//           <div className="flex items-center gap-4">
-//             {/* Search */}
-//             <input
-//               type="text"
-//               placeholder="Search..."
-//               value={search}
-//               onChange={(e) => setSearch(e.target.value)}
-//               className="px-4 py-2 rounded-full border-2 outline-none text-gray-100 placeholder-gray-100"
-//             />
-            
-//             {/* Filter Dropdown */}
-//             <div className="relative">
-//               <button
-//                 onClick={() => setShowFilter(!showFilter)}
-//                 className="flex items-center gap-2 bg-white text-gray-700 px-4 py-2 rounded-xl border border-gray-300 shadow-sm hover:shadow-md hover:bg-gray-50 transition-all"
-//               >
-//                 <Filter size={18} />
-//                 <span className="font-medium">Filters</span>
-//                 {filters.status.length > 0 && (
-//                   <span className="w-2 h-2 rounded-full bg-orange-500"></span>
-//                 )}
-//               </button>
-              
-//               {showFilter && (
-//                 <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border p-4 z-50">
-//                   <div className="border-b pb-2 mb-2">
-//                     <div
-//                       className="flex justify-between cursor-pointer"
-//                       onClick={() =>
-//                         setOpenFilter(openFilter === "status" ? "" : "status")
-//                       }
-//                     >
-//                       <span className="text-black font-semibold">Status</span>
-//                       <span className="text-black">▼</span>
-//                     </div>
-//                     {openFilter === "status" &&
-//                       ["Shipped", "Confirmed" ,"Pending", "Delivered", "Cancelled",].map((item) => (
-//                         <label key={item} className="flex justify-between mt-2">
-//                           <span className="text-black">{item}</span>
-//                           <input
-//                             type="checkbox"
-//                             checked={filters.status.includes(item)}
-//                             onChange={() => handleFilter("status", item)}
-//                             className="accent-green-600"
-//                           />
-//                         </label>
-//                       ))}
-//                   </div>
-                  
-//                   <button
-//                     onClick={resetFilters}
-//                     className="w-full mt-4 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg"
-//                   >
-//                     Reset
-//                   </button>
-//                 </div>
-//               )}
-//             </div>
-//           </div>
-          
-//           {/* Add Bridge Button */}
-//           <button
-//             onClick={() => navigate("")}
-//             className="bg-orange-500 hover:bg-orange-600 px-5 py-2 rounded-lg font-semibold transition duration-300"
-//           >
-//             + Add Bridge
-//           </button>
-//         </div>
-
-//         {/* Table Area  */}
-//         <div className="overflow-x-auto bg-white rounded-lg shadow-lg">
-//           <table className="w-full">
-//             <thead className="bg-teal-700 text-white">
-//               <tr>
-//                 <th className="p-4">BRIDGE ID</th>
-//                 <th className="p-4">CUSTOMER NAME</th>
-//                 <th className="p-4">ASSIGNED TAILOR</th>
-//                 <th className="p-4">STATUS</th>
-//                 <th className="p-4">ACTIONS</th>
-//               </tr>
-//             </thead>
-//             <tbody>
-//               {loading ? (
-//                 <tr>
-//                   <td colSpan={5} className="text-center py-10 text-teal-700 font-medium animate-pulse">
-//                     Loading Order Records...
-//                   </td>
-//                 </tr>
-//               ) : filteredBridges.length > 0 ? (
-//                 filteredBridges.map((bridge) => (
-//                   <tr key={bridge.bridge_id} className="border-b hover:bg-gray-50 text-center">
-//                     <td className="p-4 font-semibold text-slate-700">{bridge.bridge_id}</td>
-//                     <td className="p-4">{bridge.customer_name || "-"}</td>
-//                     <td className="p-4">{bridge.tailor_name || "-"}</td>
-//                     <td className="p-4">
-//                       <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-//                         bridge.status === 'Completed' ? 'bg-green-100 text-green-700' : 
-//                         bridge.status === 'Assigned' ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'
-//                       }`}>
-//                         {bridge.status || "Pending"}
-//                       </span>
-//                     </td>
-//                     <td className="p-4">
-//                       <button
-//                         onClick={() => navigate(`/bridge-details/${bridge.bridge_id}`, { state: { bridge } })}
-//                         className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium"
-//                       >
-//                         View
-//                       </button>
-//                     </td>
-//                   </tr>
-//                 ))
-//               ) : (
-//                 <tr>
-//                   <td colSpan={5} className="text-center py-10 text-gray-500 font-medium">
-//                     No Customer Bridge Records Found
-//                   </td>
-//                 </tr>
-//               )}
-//             </tbody>
-//           </table>
-//         </div>
-//       </div>
-//     </>
-//   );
-// };
-
-// export default OrderDetails;
-//  import React, { useState, useEffect } from "react";
-// import { Filter, X } from "lucide-react";
-// import { useNavigate } from "react-router-dom";
-// import axios from "axios";
-// import { BASE_URL, API_ENDPOINT } from "./config"; // path sahi check kar lena apne folder ke hisab se
-
-// const OrderDetails = () => {
-//   const [showForm, setShowForm] = useState(false); 
-//   const [showFilter, setShowFilter] = useState(false);
-//   const [search, setSearch] = useState("");
-//   const [openFilter, setOpenFilter] = useState("");
-//   const [orders, setOrders] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [filters, setFilters] = useState({
-//     status: [],
-//   });
-
-//   // --- Form State according to your API Schema ---
-//   const [formData, setFormData] = useState({
-//     address_id: "",
-//     service_id: "",
-//     cloth_details: "",
-//     customization_notes: "",
-//     description: "",
-//     fabric_notes: "",
-//     measurement_option: "self", // default value
-//     payment_method: "online",   // default value
-//     urgency_level: "standard",   // default value
-//     image_references: []
-//   });
-
-//   const navigate = useNavigate();
- 
-  
-
-//   // 1. GET: Fetch Orders List
-//   const fetchOrders = async () => {
-//     try {
-//       setLoading(true);
-//       const response = await axios.get(`${BASE_URL}/api/v1/admin/orders`, {
-//         headers: { Authorization: `Bearer ${token}` },
-//       });
-//       const data = response.data?.data || response.data?.orders || response.data || [];
-//       setOrders(Array.isArray(data) ? data : []);
-//     } catch (error) {
-//       console.error("Order fetch error:", error);
-//       if (error.response?.status === 401) {
-//         alert("Session expired. Please login again.");
-//         localStorage.removeItem("token");
-//       }
-//       setOrders([]);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchOrders();
-//   }, []);
-
-//   // 2. POST: Create Order Handler
-//   const handleInputChange = (e) => {
-//     const { name, value } = e.target;
-//     setFormData((prev) => ({ ...prev, [name]: value }));
-//   };
-
-//   const handleFormSubmit = async (e) => {
-//     e.preventDefault();
-//     try {
-//       // API ke requirements ke mutabik IDs ko integer mein convert karna zaroori hai
-//       const payload = {
-//         ...formData,
-//         address_id: parseInt(formData.address_id) || 0,
-//         service_id: parseInt(formData.service_id) || 0,
-//       };
-
-//       const response = await axios.post(`${BASE_URL}/api/v1/orders`, payload, {
-//         headers: { 
-//           Authorization: `Bearer ${token}`,
-//           "Content-Type": "application/json"
-//         },
-//       });
-
-//       if (response.status === 200) {
-//         alert(`Order Created Successfully! Code: ${response.data.OrderCode}`);
-//         setShowForm(false);
-//         // Form reset karein
-//         setFormData({
-//           address_id: "",
-//           service_id: "",
-//           cloth_details: "",
-//           customization_notes: "",
-//           description: "",
-//           fabric_notes: "",
-//           measurement_option: "self",
-//           payment_method: "online",
-//           urgency_level: "standard",
-//           image_references: []
-//         });
-//         fetchOrders(); // List ko refresh karein
-//       }
-//     } catch (error) {
-//       console.error("Create Order Error:", error);
-//       if (error.response?.status === 422) {
-//         alert("Validation Error! Please check your input fields.");
-//       } else {
-//         alert("Failed to create order. Please try again.");
-//       }
-//     }
-//   };
-
-//   // --- Filtering & Searching Logic ---
-//   const handleFilter = (type, value) => {
-//     setFilters((prev) => ({
-//       ...prev,
-//       [type]: prev[type].includes(value)
-//         ? prev[type].filter((item) => item !== value)
-//         : [...prev[type], value],
-//     }));
-//   };
-
-//   const resetFilters = () => setFilters({ status: [] });
-
-//   const filteredOrders = orders.filter((order) => {
-//     const searchMatch =
-//       order.OrderCode?.toLowerCase().includes(search.toLowerCase()) ||
-//       order.order_id?.toString().includes(search) ||
-//       order.customer_name?.toLowerCase().includes(search.toLowerCase());
-
-//     const statusMatch =
-//       filters.status.length === 0 ||
-//       filters.status.includes(order.Status || order.status);
-
-//     return searchMatch && statusMatch;
-//   });
-
-//   return (
-//     <>
-//       {/* Main Container */}
-//       <div className={`p-5 w-full min-h-screen bg-gray-100 transition-all duration-300 ${showForm ? "blur-sm pointer-events-none select-none" : ""}`}>
-        
-//         {/* Header */}
-//         <div className="bg-teal-700 text-white p-4 rounded-lg shadow-md mb-6 flex justify-between items-center">
-//           <h1 className="text-2xl font-bold"> Orders Dashboard</h1>
-          
-//           <div className="flex items-center gap-4">
-//             {/* Search */}
-//             <input
-//               type="text"
-//               placeholder="Search Order Code..."
-//               value={search}
-//               onChange={(e) => setSearch(e.target.value)}
-//               className="px-4 py-2 rounded-full border border-teal-600 bg-teal-800 text-white placeholder-teal-200 outline-none focus:ring-2 focus:ring-orange-400"
-//             />
-            
-//             {/* Filter Dropdown */}
-//             <div className="relative">
-//               <button
-//                 onClick={() => setShowFilter(!showFilter)}
-//                 className="flex items-center gap-2 bg-white text-gray-700 px-4 py-2 rounded-xl border border-gray-300 shadow-sm hover:shadow-md hover:bg-gray-50 transition-all"
-//               >
-//                 <Filter size={18} />
-//                 <span className="font-medium">Filters</span>
-//                 {filters.status.length > 0 && (
-//                   <span className="w-2 h-2 rounded-full bg-orange-500"></span>
-//                 )}
-//               </button>
-              
-//               {showFilter && (
-//                 <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border p-4 z-50">
-//                   <div className="border-b pb-2 mb-2">
-//                     <div
-//                       className="flex justify-between cursor-pointer"
-//                       onClick={() => setOpenFilter(openFilter === "status" ? "" : "status")}
-//                     >
-//                       <span className="text-black font-semibold">Status</span>
-//                       <span className="text-black">{openFilter === "status" ? "▲" : "▼"}</span>
-//                     </div>
-//                     {openFilter === "status" &&
-//                       ["order_placed", "pending_payment", "Confirmed", "Shipped", "Delivered", "Cancelled"].map((item) => (
-//                         <label key={item} className="flex justify-between mt-2 cursor-pointer">
-//                           <span className="text-gray-700 capitalize">{item.replace('_', ' ')}</span>
-//                           <input
-//                             type="checkbox"
-//                             checked={filters.status.includes(item)}
-//                             onChange={() => handleFilter("status", item)}
-//                             className="accent-teal-600"
-//                           />
-//                         </label>
-//                       ))}
-//                   </div>
-//                   <button
-//                     onClick={resetFilters}
-//                     className="w-full mt-4 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-sm font-semibold transition"
-//                   >
-//                     Reset Filters
-//                   </button>
-//                 </div>
-//               )}
-//             </div>
-//           </div>
-          
-//           {/* Create Order Button */}
-//           {/* <button
-//             onClick={() => setShowForm(true)}
-//             className="bg-orange-500 hover:bg-orange-600 px-5 py-2 rounded-lg font-semibold transition duration-300 shadow-md"
-//           >
-//             + Create
-           
-//           </button> */}
-//              <button
-//             onClick={() => navigate("/addorder")}
-//               className="bg-orange-500 hover:bg-orange-600 px-5 py-2 rounded-lg font-semibold transition duration-300 shadow-md"
-//           >
-//             + Create
-//           </button>
-          
-//         </div>
-
-//         {/* Table Area */}
-//         <div className="overflow-x-auto bg-white rounded-lg shadow-lg">
-//           <table className="w-full">
-//             <thead className="bg-teal-700 text-white">
-//               <tr>
-//                 <th className="p-4">ORDER CODE / ID</th>
-//                 <th className="p-4">CLOTH DETAILS</th>
-//                 <th className="p-4">DELIVERY ETA</th>
-//                 <th className="p-4">STATUS</th>
-//                 <th className="p-4">ACTIONS</th>
-//               </tr>
-//             </thead>
-//             <tbody>
-//               {loading ? (
-//                 <tr>
-//                   <td colSpan={5} className="text-center py-10 text-teal-700 font-medium animate-pulse">
-//                     Loading Order Records...
-//                   </td>
-//                 </tr>
-//               ) : filteredOrders.length > 0 ? (
-//                 filteredOrders.map((order) => (
-//                   <tr key={order.Id || order.order_id} className="border-b hover:bg-gray-50 text-center">
-//                     <td className="p-4 font-semibold text-slate-700">{order.OrderCode || order.order_id}</td>
-//                     <td className="p-4 text-gray-600">{order.cloth_details || "-"}</td>
-//                     <td className="p-4 text-sm font-medium text-slate-600">{order.DisplayEta || order.delivery_label || "-"}</td>
-//                     <td className="p-4">
-//                       <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
-//                         (order.Status || order.status) === 'order_placed' ? 'bg-green-100 text-green-700' : 
-//                         (order.Status || order.status) === 'pending_payment' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'
-//                       }`}>
-//                         {order.StatusLabel || order.Status || order.status || "Pending"}
-//                       </span>
-//                     </td>
-//                     <td className="p-4">
-//                       <button
-//                         onClick={() => navigate(`/order-details/${order.Id || order.order_id}`, { state: { order } })}
-//                         className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
-//                       >
-//                         View
-//                       </button>
-//                     </td>
-//                   </tr>
-//                 ))
-//               ) : (
-//                 <tr>
-//                   <td colSpan={5} className="text-center py-10 text-gray-500 font-medium">
-//                     No  Order Records Found
-//                   </td>
-//                 </tr>
-//               )}
-//             </tbody>
-//           </table>
-//         </div>
-//       </div>
-
-//       {/* --- ADD ORDER POPUP FORM MODAL --- */}
-//       {showForm && (
-//         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-4">
-//           <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 relative">
-//             <button 
-//               onClick={() => setShowForm(false)}
-//               className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition"
-//             >
-//               <X size={24} />
-//             </button>
-
-//             <h2 className="text-xl font-bold text-teal-800 border-b pb-3 mb-4">Create New Order</h2>
-            
-//             <form onSubmit={handleFormSubmit} className="space-y-4 text-gray-700">
-//               <div className="grid grid-cols-2 gap-4">
-//                 <div>
-//                   <label className="block text-sm font-semibold mb-1">Address ID *</label>
-//                   <input type="number" name="address_id" value={formData.address_id} onChange={handleInputChange} required className="w-full p-2 border rounded-lg outline-none focus:border-teal-600" placeholder="e.g. 5" />
-//                 </div>
-//                 <div>
-//                   <label className="block text-sm font-semibold mb-1">Service ID *</label>
-//                   <input type="number" name="service_id" value={formData.service_id} onChange={handleInputChange} required className="w-full p-2 border rounded-lg outline-none focus:border-teal-600" placeholder="e.g. 101" />
-//                 </div>
-//               </div>
-
-//               <div>
-//                 <label className="block text-sm font-semibold mb-1">Cloth Details</label>
-//                 <input type="text" name="cloth_details" value={formData.cloth_details} onChange={handleInputChange} className="w-full p-2 border rounded-lg outline-none focus:border-teal-600" placeholder="Blue cotton cloth" />
-//               </div>
-
-//               <div className="grid grid-cols-2 gap-4">
-//                 <div>
-//                   <label className="block text-sm font-semibold mb-1">Measurement Option</label>
-//                   <select name="measurement_option" value={formData.measurement_option} onChange={handleInputChange} className="w-full p-2 border rounded-lg outline-none focus:border-teal-600">
-//                     <option value="self">Self (Khud Se)</option>
-//                     <option value="pickup">Pickup Sample</option>
-//                   </select>
-//                 </div>
-//                 <div>
-//                   <label className="block text-sm font-semibold mb-1">Urgency Level</label>
-//                   <select name="urgency_level" value={formData.urgency_level} onChange={handleInputChange} className="w-full p-2 border rounded-lg outline-none focus:border-teal-600">
-//                     <option value="standard">Standard</option>
-//                     <option value="express">Express</option>
-//                   </select>
-//                 </div>
-//               </div>
-
-//               <div>
-//                 <label className="block text-sm font-semibold mb-1">Customization Notes</label>
-//                 <textarea name="customization_notes" value={formData.customization_notes} onChange={handleInputChange} rows="2" className="w-full p-2 border rounded-lg outline-none focus:border-teal-600" placeholder="Chinese collar, Full sleeves..."></textarea>
-//               </div>
-
-//               <div>
-//                 <label className="block text-sm font-semibold mb-1">Description / Stitching Instructions</label>
-//                 <textarea name="description" value={formData.description} onChange={handleInputChange} rows="2" className="w-full p-2 border rounded-lg outline-none focus:border-teal-600" placeholder="Need slim fit stitching..."></textarea>
-//               </div>
-
-//               <div className="flex gap-4 pt-4 border-t">
-//                 <button type="button" onClick={() => setShowForm(false)} className="flex-1 bg-gray-200 text-gray-700 py-2.5 rounded-lg font-semibold hover:bg-gray-300 transition">Cancel</button>
-//                 <button type="submit" className="flex-1 bg-teal-700 text-white py-2.5 rounded-lg font-semibold hover:bg-teal-800 transition">Submit Order</button>
-//               </div>
-//             </form>
-//           </div>
-//         </div>
-//       )}
-//     </>
-//   );
-// };
-
-// export default OrderDetails;
-// import React, { useState, useEffect } from "react";
-// import { Filter, X } from "lucide-react";
-// import { useNavigate } from "react-router-dom";
-// import axios from "axios";
-// // import { BASE_URL, API_ENDPOINT } from "../config"; // Aapka central config import
-
-// const OrderDetails = () => {
-//   const [showForm, setShowForm] = useState(false); 
-//   const [showFilter, setShowFilter] = useState(false);
-//   const [search, setSearch] = useState("");
-//   const [openFilter, setOpenFilter] = useState("");
-//   const [orders, setOrders] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [filters, setFilters] = useState({
-//     status: [],
-//   });
-//  const BASE_URL = "https://web-production-efff7.up.railway.app";
-//  const API_ENDPOINT = `${BASE_URL}/api/v1/orders`;
-//   // --- Safe Token Retrieval ---
-//   // const token = localStorage.getItem("token") || "";
-// // Line ko badal kar aisa kar dein taaki dono keys check ho sakein:
-// const token = localStorage.getItem("access_token") || localStorage.getItem("token") || "";
-//   // --- Form State according to your API Schema ---
-//   const [formData, setFormData] = useState({
-//     address_id: "",
-//     service_id: "",
-//     cloth_details: "",
-//     customization_notes: "",
-//     description: "",
-//     fabric_notes: "",
-//     measurement_option: "self", // default value
-//     payment_method: "online",   // default value
-//     urgency_level: "standard",   // default value
-//     image_references: []
-//   });
-
-//   const navigate = useNavigate();
-
-//   // 1. GET: Fetch Orders List
-//   const fetchOrders = async () => {
-//     try {
-//       setLoading(true);
-//       const response = await axios.get(`${BASE_URL}/api/v1/admin/orders`, {
-//         headers: { Authorization: `Bearer ${token}` },
-//       });
-//       const data = response.data?.data || response.data?.orders || response.data || [];
-//       setOrders(Array.isArray(data) ? data : []);
-//     } catch (error) {
-//       console.error("Order fetch error:", error);
-//       if (error.response?.status === 401) {
-//         alert("Session expired. Please login again.");
-//         localStorage.removeItem("token");
-//       }
-//       setOrders([]);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchOrders();
-//   }, []);
-
-//   // 2. POST: Create Order Handler
-//   const handleInputChange = (e) => {
-//     const { name, value } = e.target;
-//     setFormData((prev) => ({ ...prev, [name]: value }));
-//   };
-
-//   const handleFormSubmit = async (e) => {
-//     e.preventDefault();
-//     try {
-//       // API ke requirements ke mutabik IDs ko integer mein convert karna zaroori hai
-//       const payload = {
-//         ...formData,
-//         address_id: parseInt(formData.address_id) || 0,
-//         service_id: parseInt(formData.service_id) || 0,
-//       };
-
-//       // const response = await axios.post(`${BASE_URL}/api/v1/orders`, payload, {
-//       //   headers: { 
-//       //     Authorization: `Bearer ${token}`,
-//       //     "Content-Type": "application/json"
-//       //   },
-//       // });
-//       // OrderDetails.jsx ke fetchOrders function ke andar is line ko change karein:
-// const response = await axios.get(`${BASE_URL}/api/v1/orders`, { // '/admin/orders' ko '/orders' kiya
-//   headers: { Authorization: `Bearer ${token}` },
-// });
-
-//       if (response.status === 200 || response.status === 201) {
-//         alert(`Order Created Successfully! Code: ${response.data.OrderCode || "N/A"}`);
-//         setShowForm(false);
-//         // Form reset karein
-//         setFormData({
-//           address_id: "",
-//           service_id: "",
-//           cloth_details: "",
-//           customization_notes: "",
-//           description: "",
-//           fabric_notes: "",
-//           measurement_option: "self",
-//           payment_method: "online",
-//           urgency_level: "standard",
-//           image_references: []
-//         });
-//         fetchOrders(); // List ko refresh karein
-//       }
-//     } catch (error) {
-//       console.error("Create Order Error:", error);
-//       if (error.response?.status === 422) {
-//         alert("Validation Error! Please check your input fields.");
-//       } else {
-//         alert("Failed to create order. Please try again.");
-//       }
-//     }
-//   };
-
-//   // --- Filtering & Searching Logic ---
-//   const handleFilter = (type, value) => {
-//     setFilters((prev) => ({
-//       ...prev,
-//       [type]: prev[type].includes(value)
-//         ? prev[type].filter((item) => item !== value)
-//         : [...prev[type], value],
-//     }));
-//   };
-
-//   const resetFilters = () => setFilters({ status: [] });
-
-//   const filteredOrders = orders.filter((order) => {
-//     const searchMatch =
-//       order.OrderCode?.toLowerCase().includes(search.toLowerCase()) ||
-//       order.order_id?.toString().includes(search) ||
-//       order.customer_name?.toLowerCase().includes(search.toLowerCase());
-
-//     const statusMatch =
-//       filters.status.length === 0 ||
-//       filters.status.includes(order.Status || order.status);
-
-//     return searchMatch && statusMatch;
-//   });
-
-//   return (
-//     <>
-//       {/* Main Container */}
-//       <div className={`p-5 w-full min-h-screen bg-gray-100 transition-all duration-300 ${showForm ? "blur-sm pointer-events-none select-none" : ""}`}>
-        
-//         {/* Header */}
-//         <div className="bg-teal-700 text-white p-4 rounded-lg shadow-md mb-6 flex justify-between items-center">
-//           <h1 className="text-2xl font-bold"> Orders Dashboard</h1>
-          
-//           <div className="flex items-center gap-4">
-//             {/* Search */}
-//             <input
-//               type="text"
-//               placeholder="Search Order Code..."
-//               value={search}
-//               onChange={(e) => setSearch(e.target.value)}
-//               className="px-4 py-2 rounded-full border border-teal-600 bg-teal-800 text-white placeholder-teal-200 outline-none focus:ring-2 focus:ring-orange-400"
-//             />
-            
-//             {/* Filter Dropdown */}
-//             <div className="relative">
-//               <button
-//                 onClick={() => setShowFilter(!showFilter)}
-//                 className="flex items-center gap-2 bg-white text-gray-700 px-4 py-2 rounded-xl border border-gray-300 shadow-sm hover:shadow-md hover:bg-gray-50 transition-all"
-//               >
-//                 <Filter size={18} />
-//                 <span className="font-medium">Filters</span>
-//                 {filters.status.length > 0 && (
-//                   <span className="w-2 h-2 rounded-full bg-orange-500"></span>
-//                 )}
-//               </button>
-              
-//               {showFilter && (
-//                 <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border p-4 z-50">
-//                   <div className="border-b pb-2 mb-2">
-//                     <div
-//                       className="flex justify-between cursor-pointer"
-//                       onClick={() => setOpenFilter(openFilter === "status" ? "" : "status")}
-//                     >
-//                       <span className="text-black font-semibold">Status</span>
-//                       <span className="text-black">{openFilter === "status" ? "▲" : "▼"}</span>
-//                     </div>
-//                     {openFilter === "status" &&
-//                       ["order_placed", "pending_payment", "Confirmed", "Shipped", "Delivered", "Cancelled"].map((item) => (
-//                         <label key={item} className="flex justify-between mt-2 cursor-pointer">
-//                           <span className="text-gray-700 capitalize">{item.replace('_', ' ')}</span>
-//                           <input
-//                             type="checkbox"
-//                             checked={filters.status.includes(item)}
-//                             onChange={() => handleFilter("status", item)}
-//                             className="accent-teal-600"
-//                           />
-//                         </label>
-//                       ))}
-//                   </div>
-//                   <button
-//                     onClick={resetFilters}
-//                     className="w-full mt-4 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-sm font-semibold transition"
-//                   >
-//                     Reset Filters
-//                   </button>
-//                 </div>
-//               )}
-//             </div>
-//           </div>
-          
-//           <button
-//             onClick={() => navigate("/addorder")}
-//             className="bg-orange-500 hover:bg-orange-600 px-5 py-2 rounded-lg font-semibold transition duration-300 shadow-md"
-//           >
-//             + Create
-//           </button>
-          
-//         </div>
-
-//         {/* Table Area */}
-//         <div className="overflow-x-auto bg-white rounded-lg shadow-lg">
-//           <table className="w-full">
-//             <thead className="bg-teal-700 text-white">
-//               <tr>
-//                 <th className="p-4">ORDER CODE / ID</th>
-//                 <th className="p-4">CLOTH DETAILS</th>
-//                 <th className="p-4">DELIVERY ETA</th>
-//                 <th className="p-4">STATUS</th>
-//                 <th className="p-4">ACTIONS</th>
-//               </tr>
-//             </thead>
-//             <tbody>
-//               {loading ? (
-//                 <tr>
-//                   <td colSpan={5} className="text-center py-10 text-teal-700 font-medium animate-pulse">
-//                     Loading Order Records...
-//                   </td>
-//                 </tr>
-//               ) : filteredOrders.length > 0 ? (
-//                 filteredOrders.map((order) => (
-//                   <tr key={order.Id || order.order_id} className="border-b hover:bg-gray-50 text-center">
-//                     <td className="p-4 font-semibold text-slate-700">{order.OrderCode || order.order_id}</td>
-//                     <td className="p-4 text-gray-600">{order.cloth_details || "-"}</td>
-//                     <td className="p-4 text-sm font-medium text-slate-600">{order.DisplayEta || order.delivery_label || "-"}</td>
-//                     <td className="p-4">
-//                       <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
-//                         (order.Status || order.status) === 'order_placed' ? 'bg-green-100 text-green-700' : 
-//                         (order.Status || order.status) === 'pending_payment' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'
-//                       }`}>
-//                         {order.StatusLabel || order.Status || order.status || "Pending"}
-//                       </span>
-//                     </td>
-//                     <td className="p-4">
-//                       <button
-//                         onClick={() => navigate(`/order-details/${order.Id || order.order_id}`, { state: { order } })}
-//                         className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
-//                       >
-//                         View
-//                       </button>
-//                     </td>
-//                   </tr>
-//                 ))
-//               ) : (
-//                 <tr>
-//                   <td colSpan={5} className="text-center py-10 text-gray-500 font-medium">
-//                     No Order Records Found
-//                   </td>
-//                 </tr>
-//               )}
-//             </tbody>
-//           </table>
-//         </div>
-//       </div>
-
-//       {/* --- ADD ORDER POPUP FORM MODAL --- */}
-//       {showForm && (
-//         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-4">
-//           <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 relative">
-//             <button 
-//               onClick={() => setShowForm(false)}
-//               className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition"
-//             >
-//               <X size={24} />
-//             </button>
-
-//             <h2 className="text-xl font-bold text-teal-800 border-b pb-3 mb-4">Create New Order</h2>
-            
-//             <form onSubmit={handleFormSubmit} className="space-y-4 text-gray-700">
-//               <div className="grid grid-cols-2 gap-4">
-//                 <div>
-//                   <label className="block text-sm font-semibold mb-1">Address ID *</label>
-//                   <input type="number" name="address_id" value={formData.address_id} onChange={handleInputChange} required className="w-full p-2 border rounded-lg outline-none focus:border-teal-600" placeholder="e.g. 5" />
-//                 </div>
-//                 <div>
-//                   <label className="block text-sm font-semibold mb-1">Service ID *</label>
-//                   <input type="number" name="service_id" value={formData.service_id} onChange={handleInputChange} required className="w-full p-2 border rounded-lg outline-none focus:border-teal-600" placeholder="e.g. 101" />
-//                 </div>
-//               </div>
-
-//               <div>
-//                 <label className="block text-sm font-semibold mb-1">Cloth Details</label>
-//                 <input type="text" name="cloth_details" value={formData.cloth_details} onChange={handleInputChange} className="w-full p-2 border rounded-lg outline-none focus:border-teal-600" placeholder="Blue cotton cloth" />
-//               </div>
-
-//               <div className="grid grid-cols-2 gap-4">
-//                 <div>
-//                   <label className="block text-sm font-semibold mb-1">Measurement Option</label>
-//                   <select name="measurement_option" value={formData.measurement_option} onChange={handleInputChange} className="w-full p-2 border rounded-lg outline-none focus:border-teal-600">
-//                     <option value="self">Self (Khud Se)</option>
-//                     <option value="pickup">Pickup Sample</option>
-//                   </select>
-//                 </div>
-//                 <div>
-//                   <label className="block text-sm font-semibold mb-1">Urgency Level</label>
-//                   <select name="urgency_level" value={formData.urgency_level} onChange={handleInputChange} className="w-full p-2 border rounded-lg outline-none focus:border-teal-600">
-//                     <option value="standard">Standard</option>
-//                     <option value="express">Express</option>
-//                   </select>
-//                 </div>
-//               </div>
-
-//               <div>
-//                 <label className="block text-sm font-semibold mb-1">Customization Notes</label>
-//                 <textarea name="customization_notes" value={formData.customization_notes} onChange={handleInputChange} rows="2" className="w-full p-2 border rounded-lg outline-none focus:border-teal-600" placeholder="Chinese collar, Full sleeves..."></textarea>
-//               </div>
-
-//               <div>
-//                 <label className="block text-sm font-semibold mb-1">Description / Stitching Instructions</label>
-//                 <textarea name="description" value={formData.description} onChange={handleInputChange} rows="2" className="w-full p-2 border rounded-lg outline-none focus:border-teal-600" placeholder="Need slim fit stitching..."></textarea>
-//               </div>
-
-//               <div className="flex gap-4 pt-4 border-t">
-//                 <button type="button" onClick={() => setShowForm(false)} className="flex-1 bg-gray-200 text-gray-700 py-2.5 rounded-lg font-semibold hover:bg-gray-300 transition">Cancel</button>
-//                 <button type="submit" className="flex-1 bg-teal-700 text-white py-2.5 rounded-lg font-semibold hover:bg-teal-800 transition">Submit Order</button>
-//               </div>
-//             </form>
-//           </div>
-//         </div>
-//       )}
-//     </>
-//   );
-// };
-
-// export default OrderDetails;
-
-import React, { useState, useEffect } from "react";
-import { Filter, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import {
+  Hash,
+  User,
+  MapPin,
+  Image as ImageIcon,
+  CheckCircle2,
+  XCircle,
+  AlertCircle,
+  RotateCcw,
+  ShoppingCart,
+  X,
+  FileText,
+  Scissors,
+  Layers,
+  Sparkles,
+  Edit2,
+  Trash2,
+  Plus,
+  Filter
+} from "lucide-react";
+ 
+// ─── Constants & Configuration ──────────────────────────────────────────────
+ 
+const API_ENDPOINT = "http://192.168.1.29:8000/api/v1/admin/orders";
 
-const OrderDetails = () => {
-  const [showForm, setShowForm] = useState(false); 
-  const [showFilter, setShowFilter] = useState(false);
-  const [search, setSearch] = useState("");
-  const [openFilter, setOpenFilter] = useState("");
+
+const api = axios.create();
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("access_token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+ 
+
+const STATUS_OPTIONS = [
+  "pending",
+  "confirmed",
+  "tailor_assigned",
+  "in_progress",
+  "shipped",
+  "delivered",
+  "cancelled"
+];
+ 
+const validators = {
+  address_id: (v) => (!v ? "Please select or provide an address ID" : ""),
+  service_id: (v) => (!v ? "Please select or provide a service ID" : ""),
+  cloth_details: (v) => (!v || v.trim().length < 3 ? "Cloth details are required (min 3 chars)" : ""),
+  customization_notes: (v) => (!v || v.trim().length < 3 ? "Customization requirements are required" : ""),
+};
+ 
+const INIT_FORM = {
+  address_id: "",
+  service_id: "",
+  cloth_details: "",
+  customization_notes: "",
+  description: "",
+  fabric_notes: "",
+  measurement_id: "",
+  measurement_option: "self",
+  payment_method: "online",
+  urgency_level: "standard",
+  status: "pending"
+};
+ 
+// ─── Shared InputField Component (Original) ──────────────────────────────────
+ 
+const InputField = ({
+  icon: Icon,
+  name,
+  label,
+  placeholder,
+  value,
+  type = "text",
+  onChange,
+  error,
+  showErrors,
+  disabled = false,
+}) => {
+  const hasError = showErrors && !!error;
+  const isSuccess = showErrors && !error && value && String(value).trim() !== "";
+ 
+  return (
+<div className="flex flex-col gap-1.5">
+<label className="text-xs font-semibold text-gray-600 flex items-center gap-1">
+        {label} {name !== "description" && name !== "fabric_notes" && name !== "measurement_id" && name !== "status" && <span className="text-red-600 font-bold">*</span>}
+</label>
+<div className="relative">
+<span className={`absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors
+          ${hasError ? "text-red-600" : isSuccess ? "text-[#006B6B]" : "text-gray-400"}`}
+>
+<Icon size={17} />
+</span>
+<input
+          type={type}
+          name={name}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange}
+          disabled={disabled}
+          autoComplete="off"
+          className={`w-full h-11 pl-11 pr-10 text-sm rounded-xl border-2 outline-none transition-all
+            placeholder:text-gray-400
+            ${disabled ? "bg-gray-100 text-gray-500 border-gray-200 cursor-not-allowed" : "bg-gray-50 focus:bg-white"}
+            ${hasError ? "border-red-500 bg-red-50/20 focus:border-red-600" : isSuccess ? "border-[#006B6B] focus:border-[#007A7A]" : "border-gray-300 focus:border-[#006B6B]"}`}
+        />
+<span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+          {hasError && <XCircle size={16} className="text-red-600" />}
+          {isSuccess && <CheckCircle2 size={16} className="text-[#007A7A]" />}
+</span>
+</div>
+      {hasError && (
+<p className="text-xs text-red-600 flex items-center gap-1 mt-0.5 animate-fadeIn">
+<AlertCircle size={12} className="shrink-0" /> {error}
+</p>
+      )}
+</div>
+  );
+};
+ 
+// ─── Shared SectionHeader Component (Original) ────────────────────────────────
+ 
+const SectionHeader = ({ icon: Icon, title, subtitle }) => (
+<div className="flex items-center justify-between pb-4 border-b-2 border-gray-100">
+<div className="flex items-center gap-3">
+<div className="w-10 h-10 bg-teal-50 rounded-xl flex items-center justify-center shrink-0 border border-teal-100">
+<Icon size={20} className="text-teal-600" />
+</div>
+<div>
+<h3 className="font-bold text-gray-800 text-base leading-tight">{title}</h3>
+<p className="text-xs text-gray-400 mt-0.5">{subtitle}</p>
+</div>
+</div>
+</div>
+);
+ 
+// ─── Field mapping helpers ───────────────────────────────────────────────────
+// The backend list/detail responses use PascalCase keys (ClothDetails,
+// CustomizationNotes, AddressId, ServiceId, MeasurementId, UrgencyLevel,
+// Status, StatusLabel, PaymentStatusLabel, AmountDisplay...). The
+// create/update payload this form sends is snake_case (address_id,
+// service_id, cloth_details...). These two helpers keep that boundary
+// explicit instead of guessing field names inline all over the component.
+ 
+const mapApiOrderToFormFields = (order) => ({
+  address_id: order.AddressId ?? "",
+  service_id: order.ServiceId ?? "",
+  cloth_details: order.ClothDetails || "",
+  customization_notes: order.CustomizationNotes || "",
+  description: order.Description || "",
+  fabric_notes: order.FabricNotes || "",
+  measurement_id: order.MeasurementId ?? "",
+
+  measurement_option: "self",
+  payment_method: "online",
+  urgency_level: order.UrgencyLevel || "standard",
+  status: order.Status || "pending",
+});
+ 
+const getStatusBadge = (statusStr) => {
+  const s = String(statusStr || "").toLowerCase();
+  if (s.includes("deliv")) return "bg-emerald-50 text-emerald-700 border-emerald-200";
+  if (s.includes("cancel")) return "bg-rose-50 text-rose-700 border-rose-200";
+  if (s.includes("ship")) return "bg-blue-50 text-blue-700 border-blue-200";
+  if (s.includes("tailor_assigned") || s.includes("assigned")) return "bg-indigo-50 text-indigo-700 border-indigo-200";
+  if (s.includes("progress")) return "bg-blue-50 text-blue-700 border-blue-200";
+  if (s.includes("confirm")) return "bg-amber-50 text-amber-700 border-amber-200";
+  return "bg-gray-50 text-gray-700 border-gray-200";
+};
+ 
+// ─── Main Integrated Component ──────────────────────────────────────────────
+ 
+export default function OrderFullDetails() {
+
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({
-    status: [],
-  });
+  const [meta, setMeta] = useState({ total: 0, page: 1, limit: 50 });
+  const [fetching, setFetching] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
+ 
+  const [viewMode, setViewMode] = useState("list"); // "list" | "form"
+  const [editingId, setEditingId] = useState(null);
+  const [form, setForm] = useState(INIT_FORM);
+  const [errors, setErrors] = useState({});
+  const [showErrors, setShowErrors] = useState(false);
+  const [images, setImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState(null);
+  const [msg, setMsg] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+const navigate = useNavigate();
+  const fileInputRef = useRef(null);
+ 
 
-  const BASE_URL = "https://web-production-efff7.up.railway.app";
-  const API_ENDPOINT = `${BASE_URL}/api/v1/orders`;
-
-  // --- Safe Token Retrieval ---
-  const token = localStorage.getItem("access_token") || localStorage.getItem("token") || "";
-
-  // --- Form State according to your API Schema ---
-  const [formData, setFormData] = useState({
-    address_id: "",
-    service_id: "",
-    cloth_details: "",
-    customization_notes: "",
-    description: "",
-    fabric_notes: "",
-    measurement_option: "self", // default value
-    payment_method: "online",   // default value
-    urgency_level: "standard",   // default value
-    image_references: []
-  });
-
-  const navigate = useNavigate();
-
-  // 1. GET: Fetch Orders List (FIXED: Removed /admin to prevent 403 Forbidden)
-  // const fetchOrders = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const response = await axios.get(`${BASE_URL}/api/v1/orders`, {
-  //       headers: { Authorization: `Bearer ${token}` },
-  //     });
-  //     const data = response.data?.data || response.data?.orders || response.data || [];
-  //     setOrders(Array.isArray(data) ? data : []);
-  //   } catch (error) {
-  // 1. GET: Fetch Orders List
   const fetchOrders = async () => {
+    setFetching(true);
+    setFetchError(null);
     try {
-      setLoading(true);
-      // URL mein waapas /admin/orders kar diya kyunki wahi sahi endpoint hai
-      const response = await axios.get(`${BASE_URL}/api/v1/admin/orders`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = response.data?.data || response.data?.orders || response.data || [];
-      setOrders(Array.isArray(data) ? data : []);
-    } catch (error) {
-      // ... baki catch block same rahega
-      console.error("Order fetch error:", error);
-      if (error.response?.status === 401) {
-        alert("Session expired. Please login again.");
-        localStorage.removeItem("token");
-        localStorage.removeItem("access_token");
+      const res = await api.get(API_ENDPOINT);
+      const data = res.data || {};
+      const list = Array.isArray(data.orders) ? data.orders : [];
+      setOrders(list);
+      setMeta({ total: data.total ?? list.length, page: data.page ?? 1, limit: data.limit ?? 50 });
+      localStorage.setItem("bridge_orders_cache", JSON.stringify({ orders: list, total: data.total, page: data.page, limit: data.limit }));
+    } catch (err) {
+      const cached = localStorage.getItem("bridge_orders_cache");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        setOrders(parsed.orders || []);
+        setMeta({ total: parsed.total ?? (parsed.orders || []).length, page: parsed.page ?? 1, limit: parsed.limit ?? 50 });
       }
-      setOrders([]);
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        setFetchError("Session expired or unauthorized — please log in again.");
+      } else {
+        setFetchError("Could not reach the order service — showing last cached data.");
+      }
+    } finally {
+      setFetching(false);
+    }
+  };
+ 
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+ 
+  const onChange = (e) => {
+    const { name, value } = e.target;
+    const formattedValue = (name === "address_id" || name === "service_id" || name === "measurement_id") && value !== ""
+      ? Number(value) || value
+      : value;
+ 
+    setForm((p) => ({ ...p, [name]: formattedValue }));
+    setErrors((p) => ({ ...p, [name]: validators[name]?.(value) || "" }));
+  };
+ 
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length > 0) {
+      setImages((prev) => [...prev, ...files]);
+      const newPreviews = files.map(file => URL.createObjectURL(file));
+      setImagePreviews((prev) => [...prev, ...newPreviews]);
+    }
+  };
+ 
+  const removeImage = (index) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+ 
+  const runFormValidation = () => {
+    const localErrors = {};
+    Object.keys(validators).forEach((key) => {
+      const errorMsg = validators[key]?.(form[key]) || "";
+      if (errorMsg) localErrors[key] = errorMsg;
+    });
+    setErrors(localErrors);
+    return Object.keys(localErrors).length === 0;
+  };
+ 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setShowErrors(true);
+    const isFormValid = runFormValidation();
+ 
+    if (!isFormValid) return;
+    setLoading(true);
+    setStatus(null);
+ 
+   
+    const payload = {};
+    Object.keys(form).forEach((key) => {
+      const value = form[key];
+      if (typeof value === "string" && value.trim() === "") return;
+      if (value === undefined || value === null) return;
+      payload[key] = value;
+    });
+ 
+    if (payload.address_id) payload.address_id = Number(payload.address_id);
+    if (payload.service_id) payload.service_id = Number(payload.service_id);
+    if (payload.measurement_id) payload.measurement_id = Number(payload.measurement_id);
+    else delete payload.measurement_id;
+    payload.image_references = [];
+ 
+    try {
+      if (editingId) {
+        await api.put(`${API_ENDPOINT}/${editingId}`, payload);
+        setStatus("success");
+        setMsg(`Order ID: ${editingId} updated successfully.`);
+      } else {
+        const res = await api.post(API_ENDPOINT, payload, {
+          headers: { "Content-Type": "application/json" },
+        });
+        setStatus("success");
+        setMsg(`Order created successfully! Code: ${res.data.OrderCode || res.data.OrderNumber || ""}`);
+      }
+    
+      await fetchOrders();
+      reset();
+      setViewMode("list");
+    } catch (err) {
+      setStatus("error");
+      setMsg(editingId ? "Could not update this order. Please try again." : "Could not create this order. Please try again.");
     } finally {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchOrders();
-  }, []);
-
-  // 2. POST: Create Order Handler (FIXED: Reverted back to correct axios.post syntax)
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
+ 
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this order?")) return;
     try {
-      // API ke requirements ke mutabik IDs ko integer mein convert karna zaroori hai
-      const payload = {
-        ...formData,
-        address_id: parseInt(formData.address_id) || 0,
-        service_id: parseInt(formData.service_id) || 0,
-      };
-
-      const response = await axios.post(`${BASE_URL}/api/v1/orders`, payload, {
-        headers: { 
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-      });
-
-      if (response.status === 200 || response.status === 201) {
-        alert(`Order Created Successfully! Code: ${response.data.OrderCode || "N/A"}`);
-        setShowForm(false);
-        // Form reset karein
-        setFormData({
-          address_id: "",
-          service_id: "",
-          cloth_details: "",
-          customization_notes: "",
-          description: "",
-          fabric_notes: "",
-          measurement_option: "self",
-          payment_method: "online",
-          urgency_level: "standard",
-          image_references: []
-        });
-        fetchOrders(); // List ko refresh karein
-      }
-    } catch (error) {
-      console.error("Create Order Error:", error);
-      if (error.response?.status === 422) {
-        alert("Validation Error! Please check your input fields.");
-      } else {
-        alert("Failed to create order. Please try again.");
-      }
+      await api.delete(`${API_ENDPOINT}/${id}`);
+      setStatus("success");
+      setMsg("Order record removed from database registry.");
+      await fetchOrders();
+    } catch (err) {
+      setStatus("error");
+      setMsg("Could not delete this order. Please try again.");
     }
   };
-
-  // --- Filtering & Searching Logic ---
-  const handleFilter = (type, value) => {
-    setFilters((prev) => ({
-      ...prev,
-      [type]: prev[type].includes(value)
-        ? prev[type].filter((item) => item !== value)
-        : [...prev[type], value],
-    }));
+ 
+  const triggerOpenEdit = (order) => {
+    setForm(mapApiOrderToFormFields(order));
+    setEditingId(order.Id);
+    setImagePreviews([]);
+    setImages([]);
+    setViewMode("form");
   };
-
-  const resetFilters = () => setFilters({ status: [] });
-
-  const filteredOrders = orders.filter((order) => {
-    const searchMatch =
-      order.OrderCode?.toLowerCase().includes(search.toLowerCase()) ||
-      order.order_id?.toString().includes(search) ||
-      order.customer_name?.toLowerCase().includes(search.toLowerCase());
-
-    const statusMatch =
-      filters.status.length === 0 ||
-      filters.status.includes(order.Status || order.status);
-
-    return searchMatch && statusMatch;
-  });
-
+ 
+  const reset = () => {
+    setForm(INIT_FORM);
+    setErrors({});
+    setShowErrors(false);
+    setImages([]);
+    setImagePreviews([]);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+ 
+  const filteredOrders = filterStatus === "all"
+    ? orders
+    : orders.filter(o => String(o.Status).toLowerCase() === filterStatus.toLowerCase());
+ 
   return (
-    <>
-      {/* Main Container */}
-      <div className={`p-5 w-full min-h-screen bg-gray-100 transition-all duration-300 ${showForm ? "blur-sm pointer-events-none select-none" : ""}`}>
-        
-        {/* Header */}
-        <div className="bg-teal-700 text-white p-4 rounded-lg shadow-md mb-6 flex justify-between items-center">
-          <h1 className="text-2xl font-bold"> Orders Dashboard</h1>
-          
-          <div className="flex items-center gap-4">
-            {/* Search */}
-            <input
-              type="text"
-              placeholder="Search Order Code..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="px-4 py-2 rounded-full border border-teal-600 bg-teal-800 text-white placeholder-teal-200 outline-none focus:ring-2 focus:ring-orange-400"
-            />
-            
-            {/* Filter Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => setShowFilter(!showFilter)}
-                className="flex items-center gap-2 bg-white text-gray-700 px-4 py-2 rounded-xl border border-gray-300 shadow-sm hover:shadow-md hover:bg-gray-50 transition-all"
-              >
-                <Filter size={18} />
-                <span className="font-medium">Filters</span>
-                {filters.status.length > 0 && (
-                  <span className="w-2 h-2 rounded-full bg-orange-500"></span>
-                )}
-              </button>
-              
-              {showFilter && (
-                <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border p-4 z-50">
-                  <div className="border-b pb-2 mb-2">
-                    <div
-                      className="flex justify-between cursor-pointer"
-                      onClick={() => setOpenFilter(openFilter === "status" ? "" : "status")}
-                    >
-                      <span className="text-black font-semibold">Status</span>
-                      <span className="text-black">{openFilter === "status" ? "▲" : "▼"}</span>
-                    </div>
-                    {openFilter === "status" &&
-                      ["order_placed", "pending_payment", "Confirmed", "Shipped", "Delivered", "Cancelled"].map((item) => (
-                        <label key={item} className="flex justify-between mt-2 cursor-pointer">
-                          <span className="text-gray-700 capitalize">{item.replace('_', ' ')}</span>
-                          <input
-                            type="checkbox"
-                            checked={filters.status.includes(item)}
-                            onChange={() => handleFilter("status", item)}
-                            className="accent-teal-600"
-                          />
-                        </label>
-                      ))}
-                  </div>
-                  <button
-                    onClick={resetFilters}
-                    className="w-full mt-4 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-sm font-semibold transition"
-                  >
-                    Reset Filters
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-          
-          <button
-            onClick={() => navigate("/addorder")}
-            className="bg-orange-500 hover:bg-orange-600 px-5 py-2 rounded-lg font-semibold transition duration-300 shadow-md"
-          >
-            + Create
-          </button>
-          
-        </div>
+<div className="w-full max-w-5xl mx-auto bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden my-6 relative p-2">
+     
+<div className="bg-[#025e5e] px-8 py-6 text-white rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<div>
+<h2 className="text-xl font-bold"> Order Details</h2>
+<p className="text-teal-100 text-xs mt-1">Customer places an order with address, service, and requirement notes/images</p>
 
-        {/* Table Area */}
-        <div className="overflow-x-auto bg-white rounded-lg shadow-lg">
-          <table className="w-full">
-            <thead className="bg-teal-700 text-white">
-              <tr>
-                <th className="p-4">ORDER CODE / ID</th>
-                <th className="p-4">CLOTH DETAILS</th>
-                <th className="p-4">DELIVERY ETA</th>
-                <th className="p-4">STATUS</th>
-                <th className="p-4">ACTIONS</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={5} className="text-center py-10 text-teal-700 font-medium animate-pulse">
-                    Loading Order Records...
-                  </td>
-                </tr>
-              ) : filteredOrders.length > 0 ? (
-                filteredOrders.map((order) => (
-                  <tr key={order.Id || order.order_id} className="border-b hover:bg-gray-50 text-center">
-                    <td className="p-4 font-semibold text-slate-700">{order.OrderCode || order.order_id}</td>
-                    <td className="p-4 text-gray-600">{order.cloth_details || "-"}</td>
-                    <td className="p-4 text-sm font-medium text-slate-600">{order.DisplayEta || order.delivery_label || "-"}</td>
-                    <td className="p-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
-                        (order.Status || order.status) === 'order_placed' ? 'bg-green-100 text-green-700' : 
-                        (order.Status || order.status) === 'pending_payment' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'
-                      }`}>
-                        {order.StatusLabel || order.Status || order.status || "Pending"}
-                      </span>
-                    </td>
-                    <td className="p-4">
-                      <button
-                        onClick={() => navigate(`/order-details/${order.Id || order.order_id}`, { state: { order } })}
-                        className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
-                      >
-                        View
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={5} className="text-center py-10 text-gray-500 font-medium">
-                    No Order Records Found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+</div>
 
-      {/* --- ADD ORDER POPUP FORM MODAL --- */}
-      {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 relative">
-            <button 
-              onClick={() => setShowForm(false)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition"
-            >
-              <X size={24} />
-            </button>
-
-            <h2 className="text-xl font-bold text-teal-800 border-b pb-3 mb-4">Create New Order</h2>
-            
-            <form onSubmit={handleFormSubmit} className="space-y-4 text-gray-700">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold mb-1">Address ID *</label>
-                  <input type="number" name="address_id" value={formData.address_id} onChange={handleInputChange} required className="w-full p-2 border rounded-lg outline-none focus:border-teal-600" placeholder="e.g. 5" />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold mb-1">Service ID *</label>
-                  <input type="number" name="service_id" value={formData.service_id} onChange={handleInputChange} required className="w-full p-2 border rounded-lg outline-none focus:border-teal-600" placeholder="e.g. 101" />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold mb-1">Cloth Details</label>
-                <input type="text" name="cloth_details" value={formData.cloth_details} onChange={handleInputChange} className="w-full p-2 border rounded-lg outline-none focus:border-teal-600" placeholder="Blue cotton cloth" />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold mb-1">Measurement Option</label>
-                  <select name="measurement_option" value={formData.measurement_option} onChange={handleInputChange} className="w-full p-2 border rounded-lg outline-none focus:border-teal-600">
-                    <option value="self">Self (Khud Se)</option>
-                    <option value="pickup">Pickup Sample</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold mb-1">Urgency Level</label>
-                  <select name="urgency_level" value={formData.urgency_level} onChange={handleInputChange} className="w-full p-2 border rounded-lg outline-none focus:border-teal-600">
-                    <option value="standard">Standard</option>
-                    <option value="express">Express</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold mb-1">Customization Notes</label>
-                <textarea name="customization_notes" value={formData.customization_notes} onChange={handleInputChange} rows="2" className="w-full p-2 border rounded-lg outline-none focus:border-teal-600" placeholder="Chinese collar, Full sleeves..."></textarea>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold mb-1">Description / Stitching Instructions</label>
-                <textarea name="description" value={formData.description} onChange={handleInputChange} rows="2" className="w-full p-2 border rounded-lg outline-none focus:border-teal-600" placeholder="Need slim fit stitching..."></textarea>
-              </div>
-
-              <div className="flex gap-4 pt-4 border-t">
-                <button type="button" onClick={() => setShowForm(false)} className="flex-1 bg-gray-200 text-gray-700 py-2.5 rounded-lg font-semibold hover:bg-gray-300 transition">Cancel</button>
-                <button type="submit" className="flex-1 bg-teal-700 text-white py-2.5 rounded-lg font-semibold hover:bg-teal-800 transition">Submit Order</button>
-              </div>
-            </form>
-          </div>
-        </div>
+</div>
+ 
+      {fetchError && (
+<div className="rounded-xl px-4 py-3.5 mx-4 mt-4 text-xs font-semibold flex items-center gap-3 border-2 bg-amber-50 text-amber-800 border-amber-200">
+<AlertCircle size={18} className="text-amber-500 shrink-0" />
+<span className="flex-1">{fetchError}</span>
+<button type="button" onClick={fetchOrders} className="underline font-bold">Retry</button>
+</div>
       )}
-    </>
+ 
+      {status && (
+<div className={`rounded-xl px-4 py-3.5 mx-4 mt-4 text-xs font-semibold flex items-center gap-3 border-2
+          ${status === "success" ? "bg-emerald-50 text-emerald-800 border-emerald-200" : "bg-red-50 text-red-800 border-red-200"}`}
+>
+          {status === "success" ? <CheckCircle2 size={18} className="text-emerald-500 shrink-0" /> : <XCircle size={18} className="text-red-500 shrink-0" />}
+<span className="flex-1">{msg}</span>
+<button type="button" onClick={() => setStatus(null)} className="text-gray-500 hover:text-gray-600">
+<X size={16} />
+</button>
+</div>
+      )}
+ 
+      {/* ─── MODE 1: ORDERS TABLE GRID VIEW ─── */}
+      {viewMode === "list" && (
+<div className="p-4">
+<div className="p-4 bg-gray-50/50 border-b border-gray-100 rounded-xl flex flex-wrap items-center justify-between gap-3 mb-4">
+<span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">Filter Workflow:</span>
+<div className="flex flex-wrap gap-1.5">
+<button onClick={() => setFilterStatus("all")} className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${filterStatus === "all" ? "bg-[#007A7A] text-white" : "bg-white text-gray-600 border"}`}>All ({orders.length})</button>
+              {STATUS_OPTIONS.map(st => {
+                const count = orders.filter(o => String(o.Status).toLowerCase() === st.toLowerCase()).length;
+                return (
+<button key={st} onClick={() => setFilterStatus(st)} className={`px-2.5 py-1 rounded-lg text-xs font-bold capitalize transition-all ${filterStatus === st ? "bg-[#007A7A] text-white" : "bg-white text-gray-600 border"}`}>{st.replace("_", " ")} ({count})</button>
+                );
+              })}
+</div>
+</div>
+ 
+          <div className="overflow-x-auto rounded-xl border border-gray-100">
+<table className="w-full text-left border-collapse">
+<thead>
+<tr className="bg-gray-50 border-b border-gray-100 text-gray-400 text-[10px] font-bold uppercase tracking-wider">
+<th className="py-3 px-5">System Order Code</th>
+<th className="py-3 px-5">Fabric & Style Specifications</th>
+<th className="py-3 px-5">Service / Address</th>
+<th className="py-3 px-5">Payment</th>
+<th className="py-3 px-5">Active Status</th>
+<th className="py-3 px-5 text-right">Actions Matrix</th>
+</tr>
+</thead>
+<tbody className="divide-y divide-gray-100 text-xs text-gray-700">
+                {fetching ? (
+<tr>
+<td colSpan={6} className="p-8 text-center text-gray-400 font-medium">Loading orders…</td>
+</tr>
+                ) : filteredOrders.length === 0 ? (
+<tr>
+<td colSpan={6} className="p-8 text-center text-gray-400 font-medium">No order data rows matched this active filter parameter.</td>
+</tr>
+                ) : (
+                  filteredOrders.map((order) => (
+<tr key={order.Id} className="hover:bg-slate-50/50 transition-colors">
+<td className="py-3 px-5 font-mono font-bold text-gray-900">{order.OrderCode || order.OrderNumber}</td>
+<td className="py-3 px-5">
+<div className="font-bold text-gray-800">{order.ClothDetails || "—"}</div>
+<div className="text-gray-400 text-[11px] font-medium">{order.CustomizationNotes || "No customization notes"}</div>
+</td>
+<td className="py-3 px-5 font-semibold text-gray-500">
+                        {order.ServiceTitle || order.ServiceName || "Service"}
+<span className="block text-[10px] uppercase font-bold text-teal-600">{order.UrgencyLevel}</span>
+                        {order.address?.city && <span className="block text-[10px] text-gray-400 normal-case font-medium">{order.address.city}, {order.address.state}</span>}
+</td>
+<td className="py-3 px-5">
+<div className="font-bold text-gray-800">{order.AmountDisplay}</div>
+<div className="text-[10px] text-gray-400 font-medium">{order.PaymentStatusLabel}</div>
+</td>
+<td className="py-3 px-5">
+<span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase border ${getStatusBadge(order.Status)}`}>
+                          {order.StatusLabel || order.Status}
+</span>
+</td>
+<td className="py-3 px-5 text-right">
+<div className="flex items-center justify-end gap-1.5">
+{/* <button onClick={() => triggerOpenEdit(order)} className="p-1.5 text-blue-600 bg-blue-50 border border-blue-100 rounded-lg hover:bg-blue-100 transition-all"><Edit2 size={12} /></button> */}
+<button
+  onClick={() =>
+    navigate("/orderfulldetails", {
+      state: { order },
+    })
+  }
+  className="p-1.5 text-blue-600 bg-blue-50 border border-blue-100 rounded-lg hover:bg-blue-100 transition-all"
+>
+  <Edit2 size={12} />
+</button>
+<button onClick={() => handleDelete(order.Id)} className="p-1.5 text-rose-600 bg-rose-50 border border-rose-100 rounded-lg hover:bg-rose-100 transition-all"><Trash2 size={12} /></button>
+</div>
+</td>
+</tr>
+                  ))
+                )}
+</tbody>
+</table>
+</div>
+          {meta.total > 0 && (
+<p className="text-[11px] text-gray-400 font-medium mt-3 px-1">Showing {filteredOrders.length} of {meta.total} total orders (page {meta.page})</p>
+          )}
+</div>
+      )}
+ 
+     
+     
+</div>
   );
-};
-
-export default OrderDetails;
+}

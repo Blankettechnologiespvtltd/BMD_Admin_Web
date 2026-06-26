@@ -24,10 +24,12 @@ function Layout() {
     { name: "Bridge", path: "/bridgedetail", icon: Grid },
     { name: "Tailors / Vendors", path: "/tailordetails", icon: Scissors },
     { name: "Order Management", path: "/ordersdetails", icon: ShoppingCart },
+      { name: "Order Queue", path: "/orderqueue", icon: CreditCard },
     { name: "Payment", path: "/payments", icon: CreditCard },
     { name: "Catalog", path: "/catalog", icon: Grid },
     { name: "Reporting", path: "/reporting", icon: BarChart2 },
     { name: "Offers & Campaigns", path: "/offers", icon: Tag },
+
   ];
 
   const SidebarContent = () => (

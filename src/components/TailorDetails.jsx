@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import AddTailor from "./AddTailor";
 import { Filter } from "lucide-react";
@@ -22,27 +23,36 @@ const TailorDetails = () => {
   const fetchTailors = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
-      console.log("TOKEN =", token);
+      // const token = localStorage.getItem("token");
+      const token = localStorage.getItem("access_token");
+      console.log("Current Admin Token:", token);
+
+      if (!token) {
+        console.error("Authorization Token missing from localStorage!");
+      }
+
       const response = await axios.get(
         "http://192.168.1.29:8000/api/v1/admin/tailors",
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        },
+        }
       );
 
-      const data =
-        response.data?.data || response.data?.tailors || response.data || [];
+      console.log("API Response received:", response.data);
 
+      // Your Swagger documentation shows the response is a direct array: [ { tailor_id: ... }, ... ]
+      const data = response.data;
       setTailors(Array.isArray(data) ? data : []);
+
     } catch (error) {
-      console.error("Tailor fetch error:", error);
+      console.error("Tailor fetch error details:", error.response || error);
 
       if (error.response?.status === 401) {
-        alert("Session expired. Please login again.");
+        alert("Session unauthorized or expired. Please login again as Admin.");
         localStorage.removeItem("token");
+        // navigate("/login"); // Uncomment this if you have a login route setup
       }
 
       setTailors([]);
@@ -92,7 +102,6 @@ const TailorDetails = () => {
 
   return (
     <>
-    
       <div
         className={`p-5 w-full min-h-screen bg-gray-100 transition-all duration-300 ${
           showForm ? "blur-sm pointer-events-none" : ""
@@ -109,7 +118,7 @@ const TailorDetails = () => {
               placeholder="Search..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="px-4 py-2 rounded-full border-2 outline-none text-gray-100 placeholder-gray-100"
+              className="px-4 py-2 rounded-full border border-teal-600 outline-none text-gray-800 placeholder-gray-400 bg-white"
             />
             
             {/* Filter Dropdown */}
@@ -242,8 +251,8 @@ const TailorDetails = () => {
                 </tr>
               ) : filteredTailors.length > 0 ? (
                 filteredTailors.map((tailor) => (
-                  <tr key={tailor.tailor_id} className="border-b hover:bg-gray-50 text-center">
-                    <td className="p-4">{tailor.tailor_id}</td>
+                  <tr key={tailor.tailor_id} className="border-b hover:bg-gray-50 text-center text-gray-800">
+                    <td className="p-4 font-semibold">{tailor.tailor_id}</td>
                     <td className="p-4">{tailor.full_name || "-"}</td>
                     <td className="p-4">{tailor.email || "-"}</td>
                     <td className="p-4">{tailor.mobile || "-"}</td>
@@ -258,7 +267,7 @@ const TailorDetails = () => {
                             },
                           })
                         }
-                        className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg"
+                        className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition"
                       >
                         View
                       </button>
@@ -268,7 +277,7 @@ const TailorDetails = () => {
               ) : (
                 <tr>
                   <td colSpan={5} className="text-center py-6 text-gray-500">
-                    No Tailor Found
+                    No Tailors Found
                   </td>
                 </tr>
               )}

@@ -13,7 +13,7 @@ import TailorApplications from "./components/TailorApplications";
 import OrderDetails from "./components/OrderDetails"
 import AddOrder from "./components/AddOrder";
 import OrderFullDetails from "./components/OrderFullDetails";
-
+import OrderQueue from "./components/OrderQueue"
 
 function App() {
   return (
@@ -33,8 +33,10 @@ function App() {
           <Route path="/addbridge" element={<AddBridge />} />
                <Route path="/addorder" element={<AddOrder />} />
           <Route path="/ordersdetails" element={<OrderDetails />} />
+           <Route path="/orderqueue" element={<OrderQueue />} />
+             {/* <Route path="/orderfulldetails" element={<OrderFullDetails />} /> */}
              <Route path="/orderfulldetails" element={<OrderFullDetails />} />
-          {/* <Route path="/tailor-applications" element={<TailorApplications />} /> */}
+          <Route path="/tailor-applications" element={<TailorApplications />} />
         </Route>
       </Routes>
     </BrowserRouter>

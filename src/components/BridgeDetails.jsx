@@ -24,7 +24,7 @@ const BridgeDetails = () => {
       
      
       const response = await axios.get(
-        "http://192.168.1.29:8000/api/v1/admin/bridges", 
+        "http://192.168.1.29:8000/api/v1/admin/", 
         {
           headers: {
             Authorization: `Bearer ${token}`,

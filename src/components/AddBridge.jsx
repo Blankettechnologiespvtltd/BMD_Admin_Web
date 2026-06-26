@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 
 // ─── Constants & Validators ──────────────────────────────────────────────────
-const API_ENDPOINT = "http://192.168.1.29:8000/api/v1/bridge/register";
+const API_ENDPOINT = "http://192.168.1.29:8000/api/v1/employee/orders";
 
 const validators = {
   name: (v) => v.trim().length < 3 ? "Name must be at least 3 characters" : "",

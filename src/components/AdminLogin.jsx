@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -19,8 +20,6 @@ function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-
-
   // LOGIN API
   const handleStep1Submit = async (e) => {
     e.preventDefault();
@@ -36,48 +35,46 @@ function AdminLogin() {
       setLoading(true);
 
       const response = await axios.post(
-        "https://web-production-efff7.up.railway.app/api/v1/auth/email/login",
-        // "http://192.168.1.29:8000/api/v1/auth/email/login",
+        "http://192.168.1.29:8000/api/v1/auth/email/login",
         {
           email,
           password,
         }
       );
 
-      // console.log("Login Response:", response.data);
       console.log("FULL LOGIN RESPONSE =>", response.data);
 
-      if (
-        response.status === 200 ||
-        response.data?.success
-      ) {
-        // Save token if backend sends one
-        // if (response.data?.token) {
-        //   localStorage.setItem(
-        //     "token",
-        //     response.data.token
-        //   );
-        // }
-        if (response.data?.access_token) {
-  localStorage.setItem(
-    "token",
-    response.data.access_token
-  );
+      if (response.status === 200 && response.data?.access_token) {
+        // Save tokens
+        localStorage.setItem(
+          "access_token",
+          response.data.access_token
+        );
 
-  localStorage.setItem(
-    "refresh_token",
-    response.data.refresh_token
-  );
-}
-// localStorage.setItem(
-//   "token",
-//   response.data.access_token
-// );
+        localStorage.setItem(
+          "refresh_token",
+          response.data.refresh_token
+        );
+
+        // Optional user info
+        if (response.data.user) {
+          localStorage.setItem(
+            "user",
+            JSON.stringify(response.data.user)
+          );
+        }
+
+        console.log(
+          "Saved Token:",
+          localStorage.getItem("access_token")
+        );
 
         setStep(2);
+      } else {
+        setError("Login failed.");
       }
     } catch (err) {
-      console.error(err);
+      console.error("Login Error:", err);
 
       setError(
         err.response?.data?.message ||
@@ -92,7 +89,9 @@ function AdminLogin() {
   const handleStep2Submit = (e) => {
     e.preventDefault();
 
-    // Replace with actual OTP API later
+    setError("");
+
+    // Replace with your real OTP API
     if (otp === "123456") {
       navigate("/dashboard");
     } else {
@@ -103,7 +102,6 @@ function AdminLogin() {
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
-        
         {/* Header */}
         <div className="bg-teal-900 p-6">
           <h1 className="text-3xl font-bold text-white">
@@ -115,20 +113,18 @@ function AdminLogin() {
           </p>
         </div>
 
-        {/* LOGIN SCREEN */}
+        {/* LOGIN */}
         {step === 1 && (
           <form
             onSubmit={handleStep1Submit}
             className="p-8 space-y-5"
           >
-            {/* Error Message */}
             {error && (
               <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-lg text-sm">
                 {error}
               </div>
             )}
 
-            {/* Email */}
             <div>
               <label className="block mb-2 text-sm font-semibold text-slate-700">
                 Email Address
@@ -147,7 +143,6 @@ function AdminLogin() {
               />
             </div>
 
-            {/* Password */}
             <div>
               <label className="block mb-2 text-sm font-semibold text-slate-700">
                 Password
@@ -166,38 +161,32 @@ function AdminLogin() {
               />
             </div>
 
-            {/* Captcha */}
             <Captcha
               onCaptchaChange={setGeneratedCaptcha}
               captchaInput={captchaInput}
               setCaptchaInput={setCaptchaInput}
             />
 
-            {/* Login Button */}
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-3 rounded-lg font-semibold text-white shadow-lg transition
-                ${
-                  loading
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-teal-900 hover:bg-teal-800 active:scale-95"
-                }`}
+              className={`w-full py-3 rounded-lg font-semibold text-white shadow-lg transition ${
+                loading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-teal-900 hover:bg-teal-800 active:scale-95"
+              }`}
             >
-              {loading
-                ? "Signing In..."
-                : "Admin Login"}
+              {loading ? "Signing In..." : "Admin Login"}
             </button>
           </form>
         )}
 
-        {/* OTP SCREEN */}
+        {/* OTP */}
         {step === 2 && (
           <form
             onSubmit={handleStep2Submit}
             className="p-8 space-y-6"
           >
-            {/* Error Message */}
             {error && (
               <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-lg text-sm">
                 {error}
@@ -214,12 +203,10 @@ function AdminLogin() {
               </h2>
 
               <p className="text-sm text-slate-500 mt-2">
-                Enter the 6 digit OTP sent to your
-                registered email.
+                Enter the 6 digit OTP sent to your registered email.
               </p>
             </div>
 
-            {/* OTP */}
             <div>
               <label className="block text-center mb-2 text-sm font-semibold text-slate-700">
                 OTP Verification
@@ -240,7 +227,6 @@ function AdminLogin() {
               />
             </div>
 
-            {/* Verify Button */}
             <button
               type="submit"
               className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-semibold shadow-lg transition active:scale-95"
@@ -248,7 +234,6 @@ function AdminLogin() {
               Verify & Enter Dashboard
             </button>
 
-            {/* Back */}
             <button
               type="button"
               onClick={() => {
