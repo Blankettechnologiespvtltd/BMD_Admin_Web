@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 @import "tailwindcss";
 
 /* ─── Custom animations ────────────────────────────────────────────────────── */
@@ -15,3 +16,6 @@
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 99px; }
 ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+=======
+@import "tailwindcss";
+>>>>>>> d54c5c1c1b7062fb7ba33beb50a3fe692b30a08e

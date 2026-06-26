@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * APP ROOT
  * ─────────────────────────────────────────────────────────────────────────────
@@ -23,3 +24,12 @@ export default function App() {
     </BrowserRouter>
   );
 }
+=======
+import Users from "./pages/Users";
+
+function App() {
+  return <Users />;
+}
+
+export default App;
+>>>>>>> d54c5c1c1b7062fb7ba33beb50a3fe692b30a08e
