@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Filter } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import BridgeFullDetails from "./BridgeFullDetails"
 
 const BridgeDetails = () => {
   const [showForm, setShowForm] = useState(false); 
@@ -17,36 +18,56 @@ const BridgeDetails = () => {
   const navigate = useNavigate();
 
   
-  const fetchBridges = async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem("token");
-      
-     
-      const response = await axios.get(
-        "http://192.168.1.29:8000/api/v1/admin/", 
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+ const fetchBridges = async () => {
+  try {
+    setLoading(true);
 
-      const data = response.data?.data || response.data?.bridges || response.data || [];
-      setBridges(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error("Bridge fetch error:", error);
+    const token = localStorage.getItem("access_token");
 
-      if (error.response?.status === 401) {
-        alert("Session expired. Please login again.");
-        localStorage.removeItem("token");
-      }
-      setBridges([]);
-    } finally {
-      setLoading(false);
+    console.log("TOKEN =", token);
+    console.log("AUTH HEADER =", `Bearer ${token}`);
+    
+
+    if (!token) {
+      console.error("No access token found!");
+      return;
     }
-  };
 
+    const response = await axios.get(
+      "https://web-production-efff7.up.railway.app/api/v1/employee/orders",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      }
+    );
+
+    console.log("API Response:", response.data);
+    console.log(JSON.stringify(response.data, null, 2));
+
+    const data = response.data.orders || [];
+    setBridges(data);
+
+  } catch (error) {
+    console.error("Bridge fetch error:", error);
+
+    if (error.response) {
+      console.log("Status:", error.response.status);
+      console.log("Response:", error.response.data);
+    }
+
+    if (error.response?.status === 401) {
+      alert("Session expired. Please login again.");
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+    }
+
+    setBridges([]);
+  } finally {
+    setLoading(false);
+  }
+};
   useEffect(() => {
     fetchBridges();
   }, []);
@@ -67,19 +88,30 @@ const BridgeDetails = () => {
   };
 
 
-  const filteredBridges = bridges.filter((bridge) => {
-    const searchMatch =
-      bridge.bridge_id?.toLowerCase().includes(search.toLowerCase()) ||
-      bridge.customer_name?.toLowerCase().includes(search.toLowerCase()) ||
-      bridge.tailor_name?.toLowerCase().includes(search.toLowerCase());
+  // const filteredBridges = bridges.filter((bridge) => {
+  //   const searchMatch =
+  //     bridge.bridge_id?.toLowerCase().includes(search.toLowerCase()) ||
+  //     bridge.customer_name?.toLowerCase().includes(search.toLowerCase()) ||
+  //     bridge.tailor_name?.toLowerCase().includes(search.toLowerCase());
 
-    const statusMatch =
-      filters.status.length === 0 ||
-      filters.status.includes(bridge.status);
+  //   const statusMatch =
+  //     filters.status.length === 0 ||
+  //     filters.status.includes(bridge.status);
 
-    return searchMatch && statusMatch;
-  });
+  //   return searchMatch && statusMatch;
+  // });
+const filteredBridges = bridges.filter((bridge) => {
+  const searchMatch =
+    bridge.OrderNumber?.toLowerCase().includes(search.toLowerCase()) ||
+    bridge.address?.full_name?.toLowerCase().includes(search.toLowerCase()) ||
+    bridge.ServiceTitle?.toLowerCase().includes(search.toLowerCase());
 
+  const statusMatch =
+    filters.status.length === 0 ||
+    filters.status.includes(bridge.StatusLabel);
+
+  return searchMatch && statusMatch;
+});
   return (
     <>
       <div
@@ -88,7 +120,7 @@ const BridgeDetails = () => {
         }`}
       >
         {/* Header  */}
-        <div className="bg-teal-700 text-white p-4 rounded-lg shadow-md mb-6 flex justify-between items-center">
+        <div className="bg-[#0A8C8C] text-white p-4 rounded-lg shadow-md mb-6 flex justify-between items-center">
           <h1 className="text-2xl font-bold"> Bridge Dashboard</h1>
           
           <div className="flex items-center gap-4">
@@ -154,7 +186,7 @@ const BridgeDetails = () => {
           {/* Add Bridge Button */}
           <button
             onClick={() => navigate("/addbridge")}
-            className="bg-orange-500 hover:bg-orange-600 px-5 py-2 rounded-lg font-semibold transition duration-300"
+            className="bg-white text-black px-5 py-2 rounded-lg font-semibold transition duration-300"
           >
             + Add 
           </button>
@@ -163,7 +195,7 @@ const BridgeDetails = () => {
         {/* Table Area  */}
         <div className="overflow-x-auto bg-white rounded-lg shadow-lg">
           <table className="w-full">
-            <thead className="bg-teal-700 text-white">
+            <thead className="bg-[#0A8C8C] text-white">
               <tr>
                 <th className="p-4">BRIDGE ID</th>
                 <th className="p-4">CUSTOMER NAME</th>
@@ -172,45 +204,47 @@ const BridgeDetails = () => {
                 <th className="p-4">ACTIONS</th>
               </tr>
             </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={5} className="text-center py-10 text-teal-700 font-medium animate-pulse">
-                    Loading Bridge Records...
-                  </td>
-                </tr>
-              ) : filteredBridges.length > 0 ? (
-                filteredBridges.map((bridge) => (
-                  <tr key={bridge.bridge_id} className="border-b hover:bg-gray-50 text-center">
-                    <td className="p-4 font-semibold text-slate-700">{bridge.bridge_id}</td>
-                    <td className="p-4">{bridge.customer_name || "-"}</td>
-                    <td className="p-4">{bridge.tailor_name || "-"}</td>
-                    <td className="p-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        bridge.status === 'Completed' ? 'bg-green-100 text-green-700' : 
-                        bridge.status === 'Assigned' ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'
-                      }`}>
-                        {bridge.status || "Pending"}
-                      </span>
-                    </td>
-                    <td className="p-4">
-                      <button
-                        onClick={() => navigate(`/bridge-details/${bridge.bridge_id}`, { state: { bridge } })}
-                        className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium"
-                      >
-                        View
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={5} className="text-center py-10 text-gray-500 font-medium">
-                    No Customer Bridge Records Found
-                  </td>
-                </tr>
-              )}
-            </tbody>
+         <tbody>
+  {loading ? (
+    <tr>
+      <td colSpan={5} className="text-center py-10 text-[#0A8C8C] font-medium animate-pulse">
+        Loading Bridge Records...
+      </td>
+    </tr>
+  ) : filteredBridges.length > 0 ? (
+    filteredBridges.map((bridge) => (
+      /* Changed key from bridge.bridge_id to bridge.OrderNumber */
+      <tr key={bridge.OrderNumber} className="border-b hover:bg-gray-50 text-center">
+        {/* Updated all cells to match your new API response schema */}
+        <td className="p-4 font-semibold text-slate-700">{bridge.OrderNumber}</td>
+        <td className="p-4">{bridge.address?.full_name || "-"}</td>
+        <td className="p-4">{bridge.ServiceTitle || "-"}</td>
+        <td className="p-4">
+          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+            bridge.StatusLabel === 'Completed' ? 'bg-green-100 text-green-700' : 
+            bridge.StatusLabel === 'Assigned' ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'
+          }`}>
+            {bridge.StatusLabel || "Pending"}
+          </span>
+        </td>
+        <td className="p-4">
+          <button
+            onClick={() => navigate("./bridgefulldetails")}
+            className="bg-white  text-black px-4 py-2 rounded-lg text-sm font-medium"
+          >
+            View
+          </button>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan={5} className="text-center py-10 text-gray-500 font-medium">
+        No Customer Bridge Records Found
+      </td>
+    </tr>
+  )}
+</tbody>
           </table>
         </div>
       </div>

@@ -32,7 +32,8 @@ const TailorDetails = () => {
       }
 
       const response = await axios.get(
-        "http://192.168.1.29:8000/api/v1/admin/tailors",
+        // "http://192.168.1.29:8000/api/v1/admin/tailors",
+        "https://web-production-efff7.up.railway.app/api/v1/admin/tailors",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -108,7 +109,7 @@ const TailorDetails = () => {
         }`}
       >
         {/* Header  */}
-        <div className="bg-teal-700 text-white p-4 rounded-lg shadow-md mb-6 flex justify-between items-center">
+        <div className="bg-[#0A8C8C] text-white p-4 rounded-lg shadow-md mb-6 flex justify-between items-center">
           <h1 className="text-2xl font-bold">Tailor Dashboard</h1>
           
           <div className="flex items-center gap-4">
@@ -118,7 +119,7 @@ const TailorDetails = () => {
               placeholder="Search..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="px-4 py-2 rounded-full border border-teal-600 outline-none text-gray-800 placeholder-gray-400 bg-white"
+              className="px-4 py-2 rounded-full border border-[#0A8C8C] outline-none text-gray-800 placeholder-gray-400 bg-white"
             />
             
             {/* Filter Dropdown */}
@@ -233,7 +234,7 @@ const TailorDetails = () => {
         {/* Table Area  */}
         <div className="overflow-x-auto bg-white rounded-lg shadow-lg">
           <table className="w-full">
-            <thead className="bg-teal-700 text-white">
+            <thead className="bg-[#0A8C8C] text-white">
               <tr>
                 <th className="p-4">Tailor ID</th>
                 <th className="p-4">Name</th>
@@ -245,7 +246,7 @@ const TailorDetails = () => {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="text-center py-10 text-teal-700 font-medium animate-pulse">
+                  <td colSpan={5} className="text-center py-10 text-[#0A8C8C] font-medium animate-pulse">
                     Loading Tailors...
                   </td>
                 </tr>

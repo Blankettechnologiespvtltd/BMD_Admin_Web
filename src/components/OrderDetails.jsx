@@ -25,8 +25,8 @@ import {
  
 // ─── Constants & Configuration ──────────────────────────────────────────────
  
-const API_ENDPOINT = "http://192.168.1.29:8000/api/v1/admin/orders";
-
+// const API_ENDPOINT = "http://192.168.1.29:8000/api/v1/admin/orders";
+const API_ENDPOINT = "https://web-production-efff7.up.railway.app/api/v1/admin/orders";
 
 const api = axios.create();
 api.interceptors.request.use((config) => {
@@ -130,7 +130,7 @@ const SectionHeader = ({ icon: Icon, title, subtitle }) => (
 <div className="flex items-center justify-between pb-4 border-b-2 border-gray-100">
 <div className="flex items-center gap-3">
 <div className="w-10 h-10 bg-teal-50 rounded-xl flex items-center justify-center shrink-0 border border-teal-100">
-<Icon size={20} className="text-teal-600" />
+<Icon size={20} className="text-[#0A8C8C]" />
 </div>
 <div>
 <h3 className="font-bold text-gray-800 text-base leading-tight">{title}</h3>
@@ -348,7 +348,7 @@ const navigate = useNavigate();
   return (
 <div className="w-full max-w-5xl mx-auto bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden my-6 relative p-2">
      
-<div className="bg-[#025e5e] px-8 py-6 text-white rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<div className="bg-[#0A8C8C] px-8 py-6 text-white rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 <div>
 <h2 className="text-xl font-bold"> Order Details</h2>
 <p className="text-teal-100 text-xs mt-1">Customer places an order with address, service, and requirement notes/images</p>
@@ -424,7 +424,7 @@ const navigate = useNavigate();
 </td>
 <td className="py-3 px-5 font-semibold text-gray-500">
                         {order.ServiceTitle || order.ServiceName || "Service"}
-<span className="block text-[10px] uppercase font-bold text-teal-600">{order.UrgencyLevel}</span>
+<span className="block text-[10px] uppercase font-bold text-[#0A8C8C]">{order.UrgencyLevel}</span>
                         {order.address?.city && <span className="block text-[10px] text-gray-400 normal-case font-medium">{order.address.city}, {order.address.state}</span>}
 </td>
 <td className="py-3 px-5">

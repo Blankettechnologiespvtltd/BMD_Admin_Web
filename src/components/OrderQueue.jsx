@@ -32,11 +32,12 @@ export default function OrderQueue() {
           }
         };
 
-        const response = await fetch("http://192.168.1.29:8000/api/v1/employee/orders", requestOptions);
+        // const response = await fetch("http://192.168.1.29:8000/api/v1/employee/orders", requestOptions);
+            const response = await fetch("https://web-production-efff7.up.railway.app/api/v1/employee/orders", requestOptions);
         
     
         if (response.status === 401) {
-          throw new Error("401 : Session expire ho gaya hai ya aap authorized nahi hain. Kripya login dobara karein.");
+          throw new Error("401 ");
         }
 
         if (!response.ok) {
@@ -56,7 +57,7 @@ export default function OrderQueue() {
         setError(null);
       } catch (err) {
         console.error("Error fetching orders:", err);
-        setError(err.message || "API se data load karne me dikkat aa rahi hai.");
+        setError(err.message );
       } finally {
         setLoading(false);
       }
@@ -97,7 +98,7 @@ export default function OrderQueue() {
   const getPaymentBadge = (status) => {
     if (status === "advance_paid") {
       return (
-        <span className="flex items-center gap-1 w-fit px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 border border-green-200">
+        <span className="flex items-center gap-1 w-fit px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-[#0A8C8C] border border-green-200">
           <CheckCircle size={12} /> Advance Paid
         </span>
       );
@@ -114,7 +115,7 @@ export default function OrderQueue() {
       <div className="p-6 w-full transition-all duration-300">
         
         {/* Header */}
-        <div className="bg-teal-700 text-white p-5 rounded-xl shadow-lg mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="bg-[#0A8C8C] text-white p-5 rounded-xl shadow-lg mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
           <h1 className="text-2xl font-bold tracking-wide">Order Queue</h1>
           
           <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto justify-end">

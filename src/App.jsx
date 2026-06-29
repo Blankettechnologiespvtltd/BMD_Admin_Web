@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout"; // Layout component ko import kiya
 import AddBridge from "./components/AddBridge";
 import BridgeDetails from "./components/BridgeDetails";
+import BridgeFullDetails from "./components/BridgeFullDetails"
 import AdminLogin from "./components/AdminLogin";
 import Dashboard from "./components/Dashboard";
 import TailorDetails from "./components/TailorDetails";
@@ -31,6 +32,7 @@ function App() {
           <Route path="/fulldetails" element={<FullDetails />} />
           <Route path="/bridgedetail" element={<BridgeDetails />} />
           <Route path="/addbridge" element={<AddBridge />} />
+            <Route path="/bridgefulldetails" element={<BridgeFullDetails />} />
                <Route path="/addorder" element={<AddOrder />} />
           <Route path="/ordersdetails" element={<OrderDetails />} />
            <Route path="/orderqueue" element={<OrderQueue />} />

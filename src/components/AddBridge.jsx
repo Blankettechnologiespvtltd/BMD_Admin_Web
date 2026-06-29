@@ -23,7 +23,8 @@ import {
 } from "lucide-react";
 
 // ─── Constants & Validators ──────────────────────────────────────────────────
-const API_ENDPOINT = "http://192.168.1.29:8000/api/v1/employee/orders";
+// const API_ENDPOINT = "http://192.168.1.29:8000/api/v1/employee/orders";
+const API_ENDPOINT = "https://web-production-efff7.up.railway.app/api/v1/employee/orders";
 
 const validators = {
   name: (v) => v.trim().length < 3 ? "Name must be at least 3 characters" : "",
@@ -69,7 +70,6 @@ const InputField = ({
         <span className={`absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors
           ${hasError ? "text-red-600" : isSuccess ? "text-[#006B6B]" : "text-gray-400"}`}
         >
-        
           <Icon size={17} />
         </span>
         <input
@@ -179,14 +179,11 @@ export default function AddBridge() {
   const [msg, setMsg] = useState("");
 
   const [kyc, setKyc] = useState({ aadhar: null, pan_card: null, other: null });
-  
-  // New state to manage the inner modal review view
   const [activePreview, setActivePreview] = useState(null);
 
   const fileInputRef = useRef(null);
   const kycCount = Object.values(kyc).filter(Boolean).length;
 
-  // Auto-generate Bridge ID
   useEffect(() => {
     const randomId = "BMD" + Math.floor(1000 + Math.random() * 900000);
     setForm(prev => ({ ...prev, bridge_id: randomId }));
@@ -215,7 +212,6 @@ export default function AddBridge() {
   const onUpload = (key, file) => setKyc((p) => ({ ...p, [key]: file }));
   const onDelete = (key) => setKyc((p) => ({ ...p, [key]: null }));
   
-  // Updated onView to set modal preview info state instead of opening _blank tab
   const onView = (key) => {
     if (kyc[key]) {
       const fileURL = URL.createObjectURL(kyc[key]);
@@ -292,16 +288,39 @@ export default function AddBridge() {
     }
   };
 
+  // पेज बंद करने का फंक्शन
+  const handleClosePage = () => {
+    // अगर आप React Router यूज़ कर रहे हैं तो यहाँ navigate('/') लिख सकते हैं
+    // वर्तमान में यह ब्राउज़र हिस्ट्री में पीछे ले जाएगा या पेज बंद करने की कोशिश करेगा
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      window.close();
+    }
+  };
+
   return (
-    <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden my-6 relative">
+    /* बदलाव: यहाँ से overflow-hidden हटाकर rounded-2xl को बरक़रार रखा है */
+    <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-xl border border-gray-100 my-6 relative">
       
-      {/* Header */}
-      <div className="bg-[#025e5e] px-8 py-6 text-white relative">
+      {/* ─── बदलाव: लाल क्रॉस बटन (Red Cross Button) ─── */}
+      <button
+        type="button"
+        onClick={handleClosePage}
+        title="Close Portal"
+        className="absolute -top-3.5 -right-3.5 w-8 h-8 bg-[#ff2e3d] text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition-all transform hover:scale-115 active:scale-95 z-40 border border-white/20"
+      >
+        <X size={16} strokeWidth={3} />
+      </button>
+
+      {/* Header (बदलाव: rounded-t-2xl जोड़ा ताकि कोना सुंदर दिखे) */}
+      <div className="bg-[#025e5e] px-8 py-6 text-white relative rounded-t-2xl">
         <h2 className="text-xl font-bold">Bridge Registration Portal</h2>
         <p className="text-teal-100 text-xs mt-1">Please enter verification details and complete profile setup</p>
       </div>
 
-      <div className="overflow-y-auto max-h-[75vh]">
+      {/* Content wrapper with scroll limit */}
+      <div className="overflow-y-auto max-h-[75vh] rounded-b-2xl">
         <div className="p-8 space-y-8">
           
           {status && (
@@ -512,7 +531,6 @@ export default function AddBridge() {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
           <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden border border-gray-100 flex flex-col max-h-[85vh]">
             
-            {/* Modal Sub-Header layout mirroring user upload snapshot design */}
             <div className="flex items-center justify-between px-6 py-4 bg-gray-50 border-b border-gray-200">
               <div className="flex items-center gap-3 truncate">
                 <div className="w-9 h-9 rounded-xl bg-teal-50 flex items-center justify-center border border-teal-100 shrink-0">
@@ -532,7 +550,6 @@ export default function AddBridge() {
               </button>
             </div>
 
-            {/* Viewport Box Content */}
             <div className="p-6 overflow-y-auto flex items-center justify-center bg-gray-100/50 flex-1 min-h-[300px]">
               {activePreview.type.includes("pdf") ? (
                 <iframe 

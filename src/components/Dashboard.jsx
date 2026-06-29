@@ -18,50 +18,35 @@ function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    
-    const controller = new AbortController();
+useEffect(() => {
+  const fetchDashboardMetrics = async () => {
+    try {
+      setIsLoading(true);
 
-    const fetchDashboardMetrics = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
+      const baseURL =
+        import.meta.env.VITE_API_URL ||
+        "https://web-production-efff7.up.railway.app/api/v1";
 
-       
-        const baseURL =
-  import.meta.env.VITE_API_URL ||
-  "http://192.168.1.29:8000/api/v1";
-        
-        const response = await axios.get(`${baseURL}/admin/dashboard`, {
-          signal: controller.signal,
-          headers: {
-            "Content-Type": "application/json",
-           
-            "Authorization": `Bearer ${localStorage.getItem('access_token')}`
-          }
-        });
+      const response = await axios.get(`${baseURL}/admin/dashboard`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      });
 
-        if (response.data) {
-          setDashboardData(response.data);
-        }
-      } catch (err) {
-        if (!axios.isCancel(err)) {
-          console.error("Dashboard Fetch Error:", err);
-          setError(err.response?.data?.message || "Server issue.");
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
+      console.log("API Response:", response.data);
 
-    fetchDashboardMetrics();
+      setDashboardData(response.data);
+    } catch (err) {
+      console.log("Dashboard Error:", err);
+      console.log("Status:", err.response?.status);
+      console.log("Data:", err.response?.data);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    // Cleanup function
-    return () => {
-      controller.abort();
-    };
-  }, []);
-
+  fetchDashboardMetrics();
+}, []);
   
   const statsConfig = [
     {
@@ -97,7 +82,27 @@ function Dashboard() {
       bgColor: "bg-purple-50"
     },
   ];
+const fetchDashboardMetrics = async () => {
+  try {
+    console.log("Fetching dashboard...");
+    console.log("Token:", localStorage.getItem("access_token"));
 
+    const response = await axios.get(`${baseURL}/admin/dashboard`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+      },
+    });
+
+    console.log("Status:", response.status);
+    console.log("Response:", response.data);
+
+    setDashboardData(response.data);
+  } catch (err) {
+    console.log("ERROR:", err);
+    console.log("Status:", err.response?.status);
+    console.log("Response:", err.response?.data);
+  }
+};
   return (
     <div className="flex flex-col flex-1 min-h-screen bg-slate-50 font-sans antialiased text-slate-600">
       
