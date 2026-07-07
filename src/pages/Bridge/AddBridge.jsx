@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import api from "../../services/api";
 import { 
   Hash, 
   User, 
@@ -23,8 +23,8 @@ import {
 } from "lucide-react";
 
 // ─── Constants & Validators ──────────────────────────────────────────────────
-// const API_ENDPOINT = "http://192.168.1.29:8000/api/v1/employee/orders";
-const API_ENDPOINT = "https://web-production-efff7.up.railway.app/api/v1/employee/orders";
+
+const API_ENDPOINT = "/employee/orders";
 
 const validators = {
   name: (v) => v.trim().length < 3 ? "Name must be at least 3 characters" : "",
@@ -168,7 +168,7 @@ const KycCard = ({ label, icon: Icon, docKey, file, onUpload, onView, onDelete }
 };
 
 // ─── Main AddBridge Component ──────────────────────────────────────────────────
-export default function AddBridge() {
+ function AddBridge() {
   const [form, setForm] = useState(INIT_FORM);
   const [errors, setErrors] = useState({});
   const [showErrors, setShowErrors] = useState(false); 
@@ -246,7 +246,7 @@ export default function AddBridge() {
       return;
     }
     if (kycCount < 2) {
-      alert("Please upload at least 2 KYC documents.");
+      alert("Please upload at least 2 Documents.");
       return;
     }
     
@@ -261,7 +261,8 @@ export default function AddBridge() {
       if (kyc.pan_card) formData.append("pan_doc", kyc.pan_card);
       if (kyc.other) formData.append("other_doc", kyc.other);
 
-      await axios.post(API_ENDPOINT, formData, {
+     
+      await api.post(API_ENDPOINT, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -288,10 +289,7 @@ export default function AddBridge() {
     }
   };
 
-  // पेज बंद करने का फंक्शन
   const handleClosePage = () => {
-    // अगर आप React Router यूज़ कर रहे हैं तो यहाँ navigate('/') लिख सकते हैं
-    // वर्तमान में यह ब्राउज़र हिस्ट्री में पीछे ले जाएगा या पेज बंद करने की कोशिश करेगा
     if (window.history.length > 1) {
       window.history.back();
     } else {
@@ -300,10 +298,8 @@ export default function AddBridge() {
   };
 
   return (
-    /* बदलाव: यहाँ से overflow-hidden हटाकर rounded-2xl को बरक़रार रखा है */
     <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-xl border border-gray-100 my-6 relative">
       
-      {/* ─── बदलाव: लाल क्रॉस बटन (Red Cross Button) ─── */}
       <button
         type="button"
         onClick={handleClosePage}
@@ -313,13 +309,11 @@ export default function AddBridge() {
         <X size={16} strokeWidth={3} />
       </button>
 
-      {/* Header (बदलाव: rounded-t-2xl जोड़ा ताकि कोना सुंदर दिखे) */}
       <div className="bg-[#025e5e] px-8 py-6 text-white relative rounded-t-2xl">
         <h2 className="text-xl font-bold">Bridge Registration Portal</h2>
         <p className="text-teal-100 text-xs mt-1">Please enter verification details and complete profile setup</p>
       </div>
 
-      {/* Content wrapper with scroll limit */}
       <div className="overflow-y-auto max-h-[75vh] rounded-b-2xl">
         <div className="p-8 space-y-8">
           
@@ -484,8 +478,8 @@ export default function AddBridge() {
               />
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                <KycCard label="Aadhar Card" icon={CreditCard} docKey="aadhar" file={kyc.aadhar} onUpload={onUpload} onView={onView} onDelete={onDelete} />
-                <KycCard label="PAN Card" icon={FileText} docKey="pan_card" file={kyc.pan_card} onUpload={onUpload} onView={onView} onDelete={onDelete} />
+                <KycCard label="Document 1" icon={CreditCard} docKey="aadhar" file={kyc.aadhar} onUpload={onUpload} onView={onView} onDelete={onDelete} />
+                <KycCard label="Document 2" icon={FileText} docKey="pan_card" file={kyc.pan_card} onUpload={onUpload} onView={onView} onDelete={onDelete} />
                 <KycCard label="Other Document" icon={FileText} docKey="other" file={kyc.other} onUpload={onUpload} onView={onView} onDelete={onDelete} />
               </div>
 
@@ -517,7 +511,7 @@ export default function AddBridge() {
                   className="flex-1 sm:flex-none h-11 px-8 bg-[#007A7A] hover:bg-[#006B6B] text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg shadow-teal-500/25 transition-all"
                 >
                   <UserPlus size={16} />
-                  {loading ? "Saving…" : "Submit "}
+                  {loading ? "Saving…" : "Submit"}
                 </button>
               </div>
             </div>
@@ -573,3 +567,4 @@ export default function AddBridge() {
     </div>
   );
 }
+export default AddBridge

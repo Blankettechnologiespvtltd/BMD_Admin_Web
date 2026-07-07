@@ -1,7 +1,7 @@
 
 import { useState, useRef } from "react";
 import axios from "axios";
-import TailorDetails from "./TailorDetails";
+import TailorDetails from "../Tailor/TailorDetails";
 import {
   User,
   Mail,
@@ -35,10 +35,10 @@ const validators = {
     v.trim().length < 2 ? "Specialization is required" : "",
   address: (v) =>
     v.trim().length < 10 ? "Address must be at least 10 characters" : "",
-  aadhar_no: (v) =>
-    /^\d{12}$/.test(v) ? "" : "Enter a valid 12-digit Aadhar number",
-  pan_no: (v) =>
-    /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(v.toUpperCase()) ? "Enter a valid PAN number" : "",
+  // aadhar_no: (v) =>
+  //   /^\d{12}$/.test(v) ? "" : "Enter a valid 12-digit Aadhar number",
+  // pan_no: (v) =>
+  //   /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(v.toUpperCase()) ? "Enter a valid PAN number" : "",
 };
 
 const INIT_FORM = {
@@ -550,7 +550,7 @@ const AddTailor = () => {
                     label="Aadhar Card"
                     icon={CreditCard}
                     docKey="aadhar"
-                    numberName="aadhar_no"
+                    // numberName="aadhar_no"
                     numberValue={form.aadhar_no}
                     // numberPlaceholder="Enter Aadhar Number"
                     onNumberChange={onChange}

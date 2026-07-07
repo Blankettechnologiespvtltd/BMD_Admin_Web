@@ -1,7 +1,6 @@
-
 import { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom"; // Navigation handle karne ke liye
-import axios from "axios";
+import { useNavigate } from "react-router-dom"; 
+import api from "../../services/api"; 
 import { 
   MapPin, 
   Image as ImageIcon,
@@ -10,16 +9,14 @@ import {
   AlertCircle,
   RotateCcw,
   ShoppingCart,
-  X,
   FileText,
   Scissors,
-  Layers,
-  ArrowRight
+  Layers
 } from "lucide-react";
 
 // ─── Constants & Validators ──────────────────────────────────────────────────
-const BASE_URL = "https://web-production-efff7.up.railway.app";
-const API_ENDPOINT = `${BASE_URL}/api/v1/orders`;
+
+const API_ENDPOINT = "/orders";
 
 const validators = {
   address_id: (v) => !v ? "Address ID is required" : "",
@@ -106,7 +103,7 @@ export default function AddOrder() {
   const [status, setStatus] = useState(null);
   const [msg, setMsg] = useState("");
   
-  const navigate = useNavigate(); // Router hook definition
+  const navigate = useNavigate(); 
   const fileInputRef = useRef(null);
 
   const onChange = (e) => {
@@ -168,17 +165,14 @@ export default function AddOrder() {
       
       payload.image_references = []; 
 
-      await axios.post(API_ENDPOINT, payload, {
-        headers: { "Content-Type": "application/json" },
-      });
+   
+      await api.post(API_ENDPOINT, payload);
 
       setStatus("success");
       setMsg("Order created successfully!");
 
-      // ─── REDIRECTION TO DASHBOARD ───
-      // 1.5 seconds ke delay ke bad automatic user aapke main dashboard path par redirect ho jayega
       setTimeout(() => {
-        navigate("/dashboard"); // Yahan aap apna correct dashboard url path badal sakte hain (e.g. "/" ya "/orders")
+        navigate("/dashboard"); 
       }, 1500);
 
     } catch (err) {
@@ -200,8 +194,6 @@ export default function AddOrder() {
 
   return (
     <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden my-6">
-      
-      {/* Header */}
       <div className="bg-[#025e5e] px-8 py-5 text-white">
         <h2 className="text-lg font-bold flex items-center gap-2">
           <ShoppingCart size={20} /> Create New Tailoring Order
@@ -288,12 +280,11 @@ export default function AddOrder() {
               <RotateCcw size={15} /> Reset
             </button>
             <button type="submit" disabled={loading} className="h-11 px-8 bg-[#007A7A] hover:bg-[#006B6B] text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-md transition-all">
-              {loading ? "Processing..." : "Submit "}
+              {loading ? "Processing..." : "Submit"}
             </button>
           </div>
         </form>
       </div>
-
     </div>
   );
 }

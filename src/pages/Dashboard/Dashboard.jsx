@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../../services/api"; 
 import {
   Users,
   ShoppingCart,
@@ -18,36 +19,32 @@ function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-useEffect(() => {
-  const fetchDashboardMetrics = async () => {
-    try {
-      setIsLoading(true);
+  useEffect(() => {
+    const fetchDashboardMetrics = async () => {
+      try {
+        setIsLoading(true);
+        setError(null); 
 
-      const baseURL =
-        import.meta.env.VITE_API_URL ||
-        "https://web-production-efff7.up.railway.app/api/v1";
+        
+        const response = await api.get("/admin/dashboard");
 
-      const response = await axios.get(`${baseURL}/admin/dashboard`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-      });
+        setDashboardData(response.data);
+      } catch (err) {
+        console.error("Dashboard Error:", err);
+        
+        if (err.response?.status === 401) {
+          setError("");
+        } else {
+          setError(err.response?.data?.message || "Data loading");
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-      console.log("API Response:", response.data);
+    fetchDashboardMetrics();
+  }, []);
 
-      setDashboardData(response.data);
-    } catch (err) {
-      console.log("Dashboard Error:", err);
-      console.log("Status:", err.response?.status);
-      console.log("Data:", err.response?.data);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  fetchDashboardMetrics();
-}, []);
-  
   const statsConfig = [
     {
       title: "Active Customers",
@@ -82,31 +79,9 @@ useEffect(() => {
       bgColor: "bg-purple-50"
     },
   ];
-const fetchDashboardMetrics = async () => {
-  try {
-    console.log("Fetching dashboard...");
-    console.log("Token:", localStorage.getItem("access_token"));
 
-    const response = await axios.get(`${baseURL}/admin/dashboard`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-      },
-    });
-
-    console.log("Status:", response.status);
-    console.log("Response:", response.data);
-
-    setDashboardData(response.data);
-  } catch (err) {
-    console.log("ERROR:", err);
-    console.log("Status:", err.response?.status);
-    console.log("Response:", err.response?.data);
-  }
-};
   return (
     <div className="flex flex-col flex-1 min-h-screen bg-slate-50 font-sans antialiased text-slate-600">
-      
-      {/* Header section remains intact */}
       <header className="flex items-center justify-between h-16 px-6 bg-white border-b sticky top-0 z-10">
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-3 cursor-pointer p-1 rounded-lg hover:bg-slate-50 transition">
@@ -136,7 +111,6 @@ const fetchDashboardMetrics = async () => {
         </div>
       </header>
 
-      {/* Main Content Area */}
       <main className="flex-1 p-6 overflow-y-auto max-w-7xl mx-auto w-full">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Overview Dashboard</h1>
@@ -148,7 +122,6 @@ const fetchDashboardMetrics = async () => {
           )}
         </div>
 
-        {/* Error State Handler */}
         {error && (
           <div className="flex items-center space-x-3 bg-rose-50 border border-rose-100 text-rose-700 p-4 rounded-xl mb-6 shadow-sm">
             <AlertCircle size={20} className="shrink-0" />
@@ -156,7 +129,6 @@ const fetchDashboardMetrics = async () => {
           </div>
         )}
 
-        {/* Dynamic Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
           {statsConfig.map((stat, idx) => {
             const Icon = stat.icon;
@@ -194,7 +166,6 @@ const fetchDashboardMetrics = async () => {
           })}
         </div>
 
-        {/* Order Operational Status Breakdown */}
         {!isLoading && dashboardData && (
           <div className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm">
             <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4">
@@ -203,19 +174,19 @@ const fetchDashboardMetrics = async () => {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center sm:text-left">
               <div className="p-4 bg-amber-50/50 rounded-xl border border-amber-100/50">
                 <span className="block text-xs font-semibold text-amber-600 uppercase tracking-wider mb-1">Pending</span>
-                <span className="text-xl font-bold text-slate-800">{dashboardData.orders.pending}</span>
+                <span className="text-xl font-bold text-slate-800">{dashboardData.orders?.pending ?? 0}</span>
               </div>
               <div className="p-4 bg-orange-50/50 rounded-xl border border-orange-100/50">
                 <span className="block text-xs font-semibold text-orange-600 uppercase tracking-wider mb-1">Unassigned</span>
-                <span className="text-xl font-bold text-slate-800">{dashboardData.orders.pending_assignment}</span>
+                <span className="text-xl font-bold text-slate-800">{dashboardData.orders?.pending_assignment ?? 0}</span>
               </div>
               <div className="p-4 bg-emerald-50/50 rounded-xl border border-emerald-100/50">
                 <span className="block text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-1">Delivered</span>
-                <span className="text-xl font-bold text-slate-800">{dashboardData.orders.delivered}</span>
+                <span className="text-xl font-bold text-slate-800">{dashboardData.orders?.delivered ?? 0}</span>
               </div>
               <div className="p-4 bg-rose-50/50 rounded-xl border border-rose-100/50">
                 <span className="block text-xs font-semibold text-rose-600 uppercase tracking-wider mb-1">Cancelled</span>
-                <span className="text-xl font-bold text-slate-800">{dashboardData.orders.cancelled}</span>
+                <span className="text-xl font-bold text-slate-800">{dashboardData.orders?.cancelled ?? 0}</span>
               </div>
             </div>
           </div>

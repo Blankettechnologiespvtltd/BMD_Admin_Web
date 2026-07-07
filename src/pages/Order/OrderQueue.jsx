@@ -2,7 +2,12 @@
 import React, { useState, useEffect } from "react";
 import { Filter, Eye, ShieldAlert, CheckCircle, Clock, Loader2 } from "lucide-react";
 
+import api from "../../services/api"; 
+
 export default function OrderQueue() {
+
+  const hasToken = !!(localStorage.getItem("access_token") || sessionStorage.getItem("access_token"));
+
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -13,38 +18,28 @@ export default function OrderQueue() {
   const [filters, setFilters] = useState({ status: [] });
   const [selectedOrder, setSelectedOrder] = useState(null);
 
-  // ====== DYNAMIC API INTEGRATION WITH AUTH AUTHENTICATION ======
+
   useEffect(() => {
+    const token = localStorage.getItem("access_token") || sessionStorage.getItem("access_token");
+    if (!token) {
+      console.warn("Unauthorized access attempt. Redirecting to login...");
+      window.location.replace("/");
+    }
+  }, []);
+
+  
+  useEffect(() => {
+   
+    const token = localStorage.getItem("access_token") || sessionStorage.getItem("access_token");
+    if (!token) return;
+
     const fetchOrders = async () => {
       try {
         setLoading(true);
         
         
-        const access_token = localStorage.getItem("access_token") || sessionStorage.getItem("access_token");
-
-       
-        const requestOptions = {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-      
-            ...(access_token ? { "Authorization": `Bearer ${access_token}` } : {})
-          }
-        };
-
-        // const response = await fetch("http://192.168.1.29:8000/api/v1/employee/orders", requestOptions);
-            const response = await fetch("https://web-production-efff7.up.railway.app/api/v1/employee/orders", requestOptions);
-        
-    
-        if (response.status === 401) {
-          throw new Error("401 ");
-        }
-
-        if (!response.ok) {
-          throw new Error(`Server returned status: ${response.status}`);
-        }
-        
-        const result = await response.json();
+        const response = await api.get("/employee/orders");
+        const result = response.data;
         
         if (result && result.orders) {
           setOrders(result.orders);
@@ -57,7 +52,8 @@ export default function OrderQueue() {
         setError(null);
       } catch (err) {
         console.error("Error fetching orders:", err);
-        setError(err.message );
+  
+        setError(err.response?.data?.message || err.message || "Something went wrong");
       } finally {
         setLoading(false);
       }
@@ -65,15 +61,22 @@ export default function OrderQueue() {
 
     fetchOrders();
   }, []); 
-  // ==============================================================
 
+
+  if (!hasToken) {
+    return null; 
+  }
+
+ 
   const handleFilter = (type, item) => {
-    const isChecked = filters.status.includes(item);
-    setFilters({
-      ...filters,
-      status: isChecked
-        ? filters.status.filter((i) => i !== item)
-        : [...filters.status, item],
+    setFilters((prevFilters) => {
+      const isChecked = prevFilters.status.includes(item);
+      return {
+        ...prevFilters,
+        status: isChecked
+          ? prevFilters.status.filter((i) => i !== item)
+          : [...prevFilters.status, item],
+      };
     });
   };
 
@@ -121,10 +124,10 @@ export default function OrderQueue() {
           <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto justify-end">
             <input
               type="text"
-              placeholder="Search by Order No, Client..."
+              placeholder="Search .."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="px-4 py-2 w-64 text-sm rounded-full border-0 bg-teal-800/50 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-white transition-all"
+              className="px-4 py-2 w-64 text-sm rounded-xl border-0 bg-white text-gray-600 placeholder-gray-400 focus:outline-none  transition-all"
             />
             
             <div className="relative">
