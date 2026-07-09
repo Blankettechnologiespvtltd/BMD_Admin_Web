@@ -446,7 +446,7 @@ export default function ServiceCatalog() {
                 type="submit"
                 className="w-full sm:w-auto bg-[#0A8C8C] hover:bg-[#087575] text-white py-2.5 px-5 rounded-lg font-medium shadow-sm text-sm text-center"
               >
-                Save Service
+                Save Services
               </button>
             </div>
           </form>
