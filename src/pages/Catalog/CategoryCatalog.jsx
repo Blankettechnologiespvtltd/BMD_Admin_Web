@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Filter } from 'lucide-react';
 import api from '../../services/api'; 
+
 export default function CategoryCatalog() {
   // --- STATES ---
   const [categories, setCategories] = useState([]);
